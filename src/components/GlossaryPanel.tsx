@@ -25,8 +25,15 @@ function termText(term: Term, level: Level) {
   return term.professional;
 }
 
+function categoryForTerm(id: string) {
+  return termById(id)?.category ?? TERMS[0].category;
+}
+
 export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }: Props) {
   const [level, setLevel] = useState<Level>('beginner');
+  const [openCategories, setOpenCategories] = useState<Set<string>>(
+    () => new Set([categoryForTerm(selectedTermId)]),
+  );
   const q = search.trim().toLowerCase();
 
   const filtered = useMemo(() => {
@@ -44,6 +51,10 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }
   const active = termById(selectedTermId) ?? TERMS[0];
   const badgeLevel = displayLevel(active, level);
   const detailRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setOpenCategories(new Set([categoryForTerm(selectedTermId)]));
+  }, [selectedTermId]);
 
   useEffect(() => {
     const activeBtn = document.querySelector('.term-list .term-btn.active');
@@ -92,8 +103,16 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }
       <div className="glossary-grid">
         <div className="term-list">
           {byCategory.map(({ cat, items }) => (
-            <details key={cat} open={!!q || cat === 'Foundations' || cat === 'Strategy & Data'}>
-              <summary>
+            <details key={cat} open={!!q || openCategories.has(cat)}>
+              <summary
+                onClick={(e) => {
+                  if (q) return;
+                  e.preventDefault();
+                  setOpenCategories((prev) =>
+                    prev.has(cat) ? new Set<string>() : new Set([cat]),
+                  );
+                }}
+              >
                 {cat} <span className="count">{items.length}</span>
               </summary>
               <ul>

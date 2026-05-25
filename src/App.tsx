@@ -165,7 +165,7 @@ export default function App() {
             search={search}
             onSearch={setSearch}
             selectedTermId={selectedTerm}
-            onSelectTerm={setSelectedTerm}
+            onSelectTerm={jumpToTerm}
           />
         )}
 

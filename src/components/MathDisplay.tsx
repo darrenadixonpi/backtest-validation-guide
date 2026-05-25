@@ -390,6 +390,10 @@ function looksLikeFormula(clause: string) {
   );
 }
 
+function hasLatexCommands(clause: string) {
+  return /\\[a-zA-Z]+/.test(clause);
+}
+
 function ClauseContent({ clause }: { clause: string }) {
   if (clause.includes('$')) {
     const parts = splitDelimitedText(clause);
@@ -414,6 +418,11 @@ function ClauseContent({ clause }: { clause: string }) {
         })}
       </span>
     );
+  }
+
+  // No $ delimiters and no LaTeX commands → plain UI text (tables, notes, limits).
+  if (!hasLatexCommands(clause)) {
+    return <span className="math-prose">{clause}</span>;
   }
 
   if (isExplicitLatexClause(clause)) {
