@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MathBlock } from './MathDisplay';
+import { MathBlock, MathMixed } from './MathDisplay';
 import {
   ASSUMPTIONS,
   HYPOTHESIS_TESTS,
@@ -69,7 +69,7 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
             <thead>
               <tr>
                 <th>Method</th>
-                <th>Null hypothesis H₀</th>
+                <th>Null hypothesis <MathMixed text="$H_0$" /></th>
                 <th>Test statistic</th>
                 <th>Bootstrap / null mechanism</th>
                 <th>If rejected / significant, means…</th>
@@ -87,10 +87,10 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
                       row.method
                     )}
                   </td>
-                  <td>{row.nullHypothesis}</td>
-                  <td>{row.statistic}</td>
-                  <td>{row.bootstrapOrNull}</td>
-                  <td>{row.rejectionMeans}</td>
+                  <td><MathMixed text={row.nullHypothesis} /></td>
+                  <td><MathMixed text={row.statistic} /></td>
+                  <td><MathMixed text={row.bootstrapOrNull} /></td>
+                  <td><MathMixed text={row.rejectionMeans} /></td>
                 </tr>
               ))}
             </tbody>
@@ -116,9 +116,15 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
                         onChange={(e) => setChecked((prev) => ({ ...prev, [a.id]: e.target.checked }))}
                       />
                       <span className="assumption-text">
-                        <strong>{a.assumption}</strong>
-                        <span className="muted">{a.whyItMatters}</span>
-                        <span className="check-hint">Check: {a.howToCheck}</span>
+                        <strong>
+                          <MathMixed text={a.assumption} />
+                        </strong>
+                        <span className="muted">
+                          <MathMixed text={a.whyItMatters} />
+                        </span>
+                        <span className="check-hint">
+                          Check: <MathMixed text={a.howToCheck} />
+                        </span>
                       </span>
                     </label>
                   </li>
@@ -146,7 +152,7 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
           {PANEL_STATS.blocks.map((b) => (
             <article key={b.heading} className="panel-stat-block">
               <h3>{b.heading}</h3>
-              <MathBlock lines={b.latex} />
+              <MathBlock compact lines={b.latex} />
             </article>
           ))}
           <h3>Notes</h3>

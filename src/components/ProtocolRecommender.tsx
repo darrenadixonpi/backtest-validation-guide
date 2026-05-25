@@ -78,27 +78,27 @@ export function ProtocolRecommender({
       <div className="proto-controls">
         <div className="control-field">
           <span className="control-label">Strategy type</span>
-          <div className="segmented" role="group" aria-label="Strategy type">
+          <div className="segmented segmented-strategy" role="group" aria-label="Strategy type">
             <button
               type="button"
               className={strategyMode === 'indicator' ? 'segment active' : 'segment'}
               onClick={() => onStrategyMode('indicator')}
             >
-              Indicator / fixed
+              Fixed rules
             </button>
             <button
               type="button"
               className={strategyMode === 'tuned' ? 'segment active' : 'segment'}
               onClick={() => onStrategyMode('tuned')}
             >
-              Tuned params
+              Parameter grid
             </button>
             <button
               type="button"
               className={strategyMode === 'ml' ? 'segment active' : 'segment'}
               onClick={() => onStrategyMode('ml')}
             >
-              ML (GBT, etc.)
+              Supervised ML
             </button>
           </div>
         </div>
@@ -117,33 +117,33 @@ export function ProtocolRecommender({
               className={windowMode === 'rolling' ? 'segment active' : 'segment'}
               onClick={() => onWindowMode('rolling')}
             >
-              Rolling (fixed L)
+              Rolling
             </button>
           </div>
         </div>
-        <div className="control-field">
-          <span className="control-label">Hyperparameter trials</span>
-          <div className="segmented" role="group" aria-label="Hyperparameter trials">
-            <button
-              type="button"
-              className={trials === 'few' ? 'segment active' : 'segment'}
-              onClick={() => onTrials('few')}
-              disabled={strategyMode === 'indicator'}
-            >
-              Few (&lt; 20)
-            </button>
-            <button
-              type="button"
-              className={trials === 'many' ? 'segment active' : 'segment'}
-              onClick={() => onTrials('many')}
-              disabled={strategyMode === 'indicator'}
-            >
-              Many (grid)
-            </button>
+        {strategyMode !== 'indicator' && (
+          <div className="control-field">
+            <span className="control-label">Search breadth</span>
+            <div className="segmented" role="group" aria-label="Search breadth">
+              <button
+                type="button"
+                className={trials === 'few' ? 'segment active' : 'segment'}
+                onClick={() => onTrials('few')}
+              >
+                Under 20 trials
+              </button>
+              <button
+                type="button"
+                className={trials === 'many' ? 'segment active' : 'segment'}
+                onClick={() => onTrials('many')}
+              >
+                Large grid
+              </button>
+            </div>
           </div>
-        </div>
+        )}
         <div className="control-field">
-          <span className="control-label">Label horizon H</span>
+          <span className="control-label">Label horizon</span>
           <div className="segmented" role="group" aria-label="Label horizon">
             <button
               type="button"
@@ -161,22 +161,22 @@ export function ProtocolRecommender({
             </button>
           </div>
         </div>
-        <div className="control-field toggle-field">
-          <span className="control-label">Refit each step</span>
-          <div className="segmented" role="group" aria-label="Refit schedule">
+        <div className="control-field">
+          <span className="control-label">Walk-forward refit</span>
+          <div className="segmented" role="group" aria-label="Walk-forward refit">
             <button
               type="button"
               className={!refit ? 'segment active' : 'segment'}
               onClick={() => onRefit(false)}
             >
-              Fixed
+              Single pass
             </button>
             <button
               type="button"
               className={refit ? 'segment active' : 'segment'}
               onClick={() => onRefit(true)}
             >
-              Refit
+              Refit each step
             </button>
           </div>
         </div>

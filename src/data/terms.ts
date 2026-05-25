@@ -33,7 +33,7 @@ export const TERMS: Term[] = [
       'Data your strategy never saw while being built. This is the honest test — like exam questions you did not practice on.',
     professional:
       'Held-out time periods excluded from parameter estimation and model selection. OOS is the primary estimand for generalization in time-series work because it mimics deploying a model trained on past data into an unseen future. Quality depends entirely on split design — random K-fold on overlapping labels is not valid OOS in finance.',
-    math: 'Evaluate {s_t(θ̂)} on V where V ∩ T_train = ∅ and θ̂ estimated using T_train only.',
+    math: '\\text{Evaluate } \\{s_t(\\hat{\\theta})\\} \\text{ on } V \\text{ where } V \\cap T_{\\mathrm{train}} = \\emptyset \\text{ and } \\hat{\\theta} \\text{ estimated using } T_{\\mathrm{train}} \\text{ only.}',
     related: ['is', 'walk-forward', 'holdout', 'forward-testing'],
   },
   {

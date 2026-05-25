@@ -1,11 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Level, Term } from '../data/types';
 import { CATEGORIES } from '../data/types';
 import { TERMS, termById } from '../data/terms';
 import { MathDisplay } from './MathDisplay';
 
+const LEVELS: Level[] = ['beginner', 'professional', 'math'];
+
 type Props = {
-  level: Level;
   search: string;
   onSearch: (v: string) => void;
   selectedTermId: string;
@@ -23,7 +24,8 @@ function termText(term: Term, level: Level) {
   return term.professional;
 }
 
-export function GlossaryPanel({ level, search, onSearch, selectedTermId, onSelectTerm }: Props) {
+export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }: Props) {
+  const [level, setLevel] = useState<Level>('beginner');
   const q = search.trim().toLowerCase();
 
   const filtered = useMemo(() => {
@@ -48,9 +50,24 @@ export function GlossaryPanel({ level, search, onSearch, selectedTermId, onSelec
 
   return (
     <section className="panel glossary">
-      <div className="panel-head">
-        <h2>Glossary</h2>
-        <p className="muted">{filtered.length} of {TERMS.length} terms</p>
+      <div className="panel-head glossary-head">
+        <div>
+          <h2>Glossary</h2>
+          <p className="muted">{filtered.length} of {TERMS.length} terms</p>
+        </div>
+        <div className="level-bar" aria-label="Glossary detail level">
+          <span>Detail:</span>
+          {LEVELS.map((l) => (
+            <button
+              key={l}
+              type="button"
+              className={level === l ? 'level active' : 'level'}
+              onClick={() => setLevel(l)}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
       </div>
 
       <input

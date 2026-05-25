@@ -150,6 +150,22 @@ select {
   font-size: 1.15rem;
 }
 
+.glossary-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.glossary-head .level-bar {
+  flex-wrap: wrap;
+}
+
+.glossary-head .level {
+  white-space: nowrap;
+}
+
 .muted {
   color: #8b919c;
   margin: 0;
@@ -158,9 +174,31 @@ select {
 
 .proto-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.proto-controls .segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+/* Three strategy options: keep two on the first row, full-width third */
+.proto-controls .segmented-strategy .segment:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.proto-controls .segment {
+  font-size: 0.86rem;
+  line-height: 1.25;
+  padding: 8px 10px;
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .control-field {
@@ -187,9 +225,14 @@ select {
   border-radius: 6px;
   padding: 8px 12px;
   cursor: pointer;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
   text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+  box-sizing: border-box;
 }
 
 .segment:hover {
@@ -206,6 +249,13 @@ select {
 .segment:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.segment.active:disabled {
+  opacity: 0.72;
+  background: #1e3a5f;
+  border-color: #4a7cbf;
+  color: #fff;
 }
 
 .scenario-grid {
@@ -256,11 +306,17 @@ select {
 
 .method-picker {
   margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+  gap: 6px;
 }
 
 .method-picker .segment {
-  flex: 1 1 auto;
+  flex: unset;
+  width: 100%;
   text-align: left;
+  padding: 8px 10px;
+  font-size: 0.86rem;
 }
 
 .proto-controls select {
@@ -517,8 +573,14 @@ figcaption {
 
 .math-blocks {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
+}
+
+@media (min-width: 960px) {
+  .math-panel .math-blocks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .math-blocks article {
@@ -526,6 +588,7 @@ figcaption {
   border: 1px solid #2a2f3a;
   border-radius: 8px;
   padding: 12px;
+  min-width: 0;
 }
 
 .math-blocks h3 {
@@ -559,6 +622,47 @@ figcaption {
   padding: 8px 10px;
 }
 
+/* Framework grid: one scroll region per card, no nested formula boxes */
+.math-block-compact {
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #3a4150 transparent;
+}
+
+.math-block-compact::-webkit-scrollbar {
+  height: 5px;
+}
+
+.math-block-compact::-webkit-scrollbar-thumb {
+  background: #3a4150;
+  border-radius: 999px;
+}
+
+.math-blocks .math-formula {
+  overflow: visible;
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.math-blocks .math-formula + .math-formula {
+  padding-top: 6px;
+  border-top: 1px solid #2a2f3a;
+}
+
+.math-blocks .math-formula .katex {
+  font-size: 0.88rem;
+}
+
+.math-blocks .math-formula .katex-display {
+  margin: 0;
+  text-align: left;
+}
+
 .math-formula .katex {
   color: #dce6f5;
   font-size: 1.05rem;
@@ -579,6 +683,16 @@ figcaption {
   margin-bottom: 12px;
 }
 
+.math-formula-prose {
+  text-align: left;
+}
+
+.math-formula-prose .katex {
+  font-size: 1rem;
+  line-height: 1.55;
+  text-align: left;
+}
+
 .math-block-highlight {
   border-color: #355a8a;
 }
@@ -597,6 +711,11 @@ figcaption {
   border-radius: 6px;
   padding: 8px 12px;
   cursor: pointer;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+  text-align: left;
 }
 
 .sub-tab.active {
@@ -609,6 +728,50 @@ figcaption {
 .stats-table td {
   font-size: 0.88rem;
   vertical-align: top;
+  line-height: 1.5;
+}
+
+.stats-table .math-mixed {
+  display: inline;
+}
+
+.stats-table .math-inline .katex {
+  font-size: 0.92em;
+}
+
+.stats-table .math-inline .katex .mord.text {
+  font-size: 0.88em;
+}
+
+.panel-stats .panel-stat-block {
+  background: #0f1115;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.panel-stats .panel-stat-block h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.panel-stats .math-block-compact {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a4150 transparent;
+}
+
+.panel-stats .math-formula {
+  overflow: visible;
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.panel-stats .math-formula + .math-formula {
+  padding-top: 6px;
+  border-top: 1px solid #2a2f3a;
 }
 
 .linkish {
@@ -666,6 +829,18 @@ figcaption {
 .check-hint {
   color: #8b919c;
   font-size: 0.85rem;
+}
+
+.assumption-text .math-mixed {
+  display: inline;
+}
+
+.assumption-text .math-inline .katex {
+  font-size: 0.95em;
+}
+
+.assumption-text .math-inline .katex .mord.text {
+  font-size: 0.92em;
 }
 
 .limits-list {

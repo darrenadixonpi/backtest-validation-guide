@@ -8,17 +8,13 @@ import { StatisticianAppendix } from './components/StatisticianAppendix';
 import { ValidationCharts } from './components/ValidationCharts';
 import { PIPELINE_ROWS } from './data/methods';
 import { TERMS } from './data/terms';
-import type { Level } from './data/types';
 import type { StrategyMode, WindowMode } from './components/ProtocolRecommender';
 import './App.css';
 
 type Section = 'overview' | 'playbook' | 'protocol' | 'methods' | 'glossary' | 'math' | 'statistics';
 
-const LEVELS: Level[] = ['beginner', 'professional', 'math'];
-
 export default function App() {
   const [section, setSection] = useState<Section>('overview');
-  const [level, setLevel] = useState<Level>('beginner');
   const [search, setSearch] = useState('');
   const [selectedTerm, setSelectedTerm] = useState('backtesting');
   const [selectedMethod, setSelectedMethod] = useState('wfa');
@@ -97,20 +93,6 @@ export default function App() {
             </button>
           ))}
         </nav>
-
-        <div className="level-bar">
-          <span>Detail:</span>
-          {LEVELS.map((l) => (
-            <button
-              key={l}
-              type="button"
-              className={level === l ? 'level active' : 'level'}
-              onClick={() => setLevel(l)}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
       </div>
 
       <main>
@@ -179,7 +161,6 @@ export default function App() {
 
         {section === 'glossary' && (
           <GlossaryPanel
-            level={level}
             search={search}
             onSearch={setSearch}
             selectedTermId={selectedTerm}

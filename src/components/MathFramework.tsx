@@ -22,24 +22,24 @@ export function MathFramework() {
         <article className="math-block-highlight">
           <h3>{ESTIMAND_BLOCKS.fixedTheta.title}</h3>
           <p className="math-note">{ESTIMAND_BLOCKS.fixedTheta.description}</p>
-          <MathBlock lines={ESTIMAND_BLOCKS.fixedTheta.latex} />
+          <MathBlock compact lines={ESTIMAND_BLOCKS.fixedTheta.latex} />
         </article>
 
         <article className="math-block-highlight">
           <h3>{ESTIMAND_BLOCKS.policy.title}</h3>
           <p className="math-note">{ESTIMAND_BLOCKS.policy.description}</p>
-          <MathBlock lines={ESTIMAND_BLOCKS.policy.latex} />
+          <MathBlock compact lines={ESTIMAND_BLOCKS.policy.latex} />
         </article>
 
         <article>
           <h3>{ESTIMAND_BLOCKS.excessReturn.title}</h3>
           <p className="math-note">{ESTIMAND_BLOCKS.excessReturn.description}</p>
-          <MathBlock lines={ESTIMAND_BLOCKS.excessReturn.latex} />
+          <MathBlock compact lines={ESTIMAND_BLOCKS.excessReturn.latex} />
         </article>
 
         <article>
           <h3>Strategy accounting</h3>
-          <MathBlock
+          <MathBlock compact
             lines={[
               's_t(\\theta) = w_{t-1}(\\theta) r_t - c_t',
               '\\hat{\\theta} = \\arg\\max_{\\theta \\in \\Theta} Score(\\theta; T_{\\text{train}})',
@@ -49,7 +49,7 @@ export function MathFramework() {
 
         <article>
           <h3>Leakage condition (labels)</h3>
-          <MathBlock
+          <MathBlock compact
             lines={[
               'y_t = h(r_{t+1}, \\ldots, r_{t+H})',
               '\\text{Leak if } \\exists t \\in T_{\\text{train}}, \\tau \\in T_{\\text{test}} : t < \\tau \\leq t+H',
@@ -59,13 +59,13 @@ export function MathFramework() {
 
         <article>
           <h3>{PURGE_FORMAL.title}</h3>
-          <MathBlock lines={PURGE_FORMAL.latex} />
+          <MathBlock compact lines={PURGE_FORMAL.latex} />
           <p className="math-note">{PURGE_FORMAL.note}</p>
         </article>
 
         <article>
           <h3>Walk-forward & prequential view</h3>
-          <MathBlock
+          <MathBlock compact
             lines={[
               '\\hat{\\theta}_k \\text{ fit on } T_k ; \\text{ evaluate on } V_k, \\quad \\max(T_k) < \\min(V_k)',
               'T_k = \\{b_k - L + 1,\\ldots,b_k\\} \\text{ (rolling)} ; \\quad T_k = \\{1,\\ldots,b_k\\} \\text{ (expanding)}',
@@ -77,7 +77,7 @@ export function MathFramework() {
 
         <article>
           <h3>Bias decomposition</h3>
-          <MathBlock
+          <MathBlock compact
             lines={[
               '\\widehat{SR}_{IS}(\\hat{\\theta}) - SR^*(\\hat{\\theta}) =',
               '[\\widehat{SR}_{IS} - \\widehat{SR}_{OOS}] + [\\widehat{SR}_{OOS} - SR^*]',
@@ -88,31 +88,31 @@ export function MathFramework() {
 
         <article>
           <h3>{CV_BIAS.title}</h3>
-          <MathBlock lines={CV_BIAS.latex} />
+          <MathBlock compact lines={CV_BIAS.latex} />
           <p className="math-note">{CV_BIAS.note}</p>
         </article>
 
         <article>
           <h3>{SHARPE_INFERENCE.lo.title}</h3>
-          <MathBlock lines={SHARPE_INFERENCE.lo.latex} />
+          <MathBlock compact lines={SHARPE_INFERENCE.lo.latex} />
           <p className="math-note">{SHARPE_INFERENCE.lo.note}</p>
         </article>
 
         <article>
           <h3>{SHARPE_INFERENCE.nonNormal.title}</h3>
-          <MathBlock lines={SHARPE_INFERENCE.nonNormal.latex} />
+          <MathBlock compact lines={SHARPE_INFERENCE.nonNormal.latex} />
           <p className="math-note">{SHARPE_INFERENCE.nonNormal.note}</p>
         </article>
 
         <article>
           <h3>{SHARPE_INFERENCE.dsr.title}</h3>
-          <MathBlock lines={SHARPE_INFERENCE.dsr.latex} />
+          <MathBlock compact lines={SHARPE_INFERENCE.dsr.latex} />
           <p className="math-note">{SHARPE_INFERENCE.dsr.note}</p>
         </article>
 
         <article>
           <h3>Multiplicity (summary)</h3>
-          <MathBlock
+          <MathBlock compact
             lines={[
               'PBO = \\frac{1}{|S|}\\sum_{s\\in S} \\mathbf{1}\\{\\text{rank}_{OOS}(\\text{IS-best}) > \\lfloor|\\Theta|/2\\rfloor\\}',
               'T_M = \\max_m \\sqrt{T}\\,\\bar{d}_m \\quad \\text{(Reality Check / SPA family)}',
