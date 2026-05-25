@@ -63,10 +63,6 @@ export default function App() {
             <strong>8</strong>
             <span>methodologies</span>
           </div>
-          <div>
-            <strong>3</strong>
-            <span>detail levels</span>
-          </div>
         </div>
       </header>
 
