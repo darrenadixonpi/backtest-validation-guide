@@ -17,11 +17,9 @@ Open the URL shown in the terminal (typically `http://localhost:5173`).
 
 ## What's inside
 
-- **51 glossary terms** — each with beginner, professional, and math-level definitions
-- **Scenario playbook** — indicator-only, hyperparameter grids, ML upgrade, factor/competition paths
-- **Protocol builder** — strategy type, expanding vs rolling WFA, trials, label horizon
-- **Charts** — illustrative IS vs OOS teaching examples
-- **Math framework** — condensed notation reference
+- **51+ glossary terms** — beginner, professional, and KaTeX-rendered math
+- **Math framework** — estimands, purge with L_f, Sharpe inference (Lo, DSR full form)
+- **Statistics appendix** — hypothesis table, assumptions checklist, limits of inference, panel methods
 
 ## References
 

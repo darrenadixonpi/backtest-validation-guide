@@ -536,7 +536,107 @@ export const TERMS: Term[] = [
     professional:
       'Portfolio optimization and factor regressions are often cross-sectional (many names per date) with panel structure. Validation needs clustered or panel-aware splits — not just single-series walk-forward. Correlation with ORB/intraday work is limited unless you merge alpha signals into a portfolio framework. Monte Carlo here often means factor return simulation or resampled panels.',
     math: 'r_{i,t} = Σ_k β_{i,k} f_{k,t} + ε_{i,t}; panel split by date t, not i.i.d. by row.',
-    related: ['regime', 'monte-carlo-simulation', 'financial-ml'],
+    related: ['regime', 'monte-carlo-simulation', 'financial-ml', 'panel-clustering'],
+  },
+  {
+    id: 'policy-estimand',
+    name: 'Policy Estimand (post-selection)',
+    category: 'Statistical Inference',
+    beginner:
+      'When you refit and pick settings over time, the thing you care about is how the whole decision rule performs — not one frozen set of knobs.',
+    professional:
+      'After walk-forward or nested CV, the deployable object is a policy π that maps past data to θ̂_k and positions. The estimand is E[s_t(θ̂_{k(t)})], not SR*(θ) for a single pre-fixed θ. Report OOS policy returns; bootstrap must state whether it is conditional on final θ̂ or includes selection.',
+    math: 'R_OOS = (1/|V|) Σ_k Σ_{t∈V_k} s_t(θ̂_k); SR*_policy = E[s_t(θ̂_{k(t)})]/σ(s_t(θ̂_{k(t)})).',
+    related: ['walk-forward', 'nested-cv', 'post-selection-inference', 'oos'],
+  },
+  {
+    id: 'post-selection-inference',
+    name: 'Post-Selection Inference',
+    category: 'Statistical Inference',
+    beginner:
+      'After you pick the “best” model, uncertainty shrinks on paper but not in reality — special care is needed.',
+    professional:
+      'Standard CIs and bootstrap intervals are conditional on the selected θ̂ unless selection is embedded in the resampling (nested bootstrap). DSR/PBO/SPA address multiplicity at the strategy level but do not replace documenting the selection pipeline.',
+    math: 'CI_fixed: given θ̂; CI_policy: resample splits with inner argmax each replicate.',
+    related: ['policy-estimand', 'dsr', 'pbo', 'nested-cv'],
+  },
+  {
+    id: 'effective-sample-size',
+    name: 'Effective Sample Size (Lo)',
+    aliases: ['Lo adjustment'],
+    category: 'Statistical Inference',
+    beginner:
+      'Autocorrelated returns make it look like you have more independent data than you really do.',
+    professional:
+      'Lo (2002): positive autocorrelation reduces effective T for Sharpe inference. Use T* (or block bootstrap) before treating √T Sharpe ratios as normal. Especially important for daily/strategy returns with serial correlation.',
+    math: 'T* ≈ T(1-ρ₁)/(1+ρ₁); SE(SR̂) ≈ √((1+0.5SR̂²)/T*).',
+    related: ['sharpe-ratio', 'autocorrelation', 'block-bootstrap', 'dsr'],
+  },
+  {
+    id: 'fwer-fdr',
+    name: 'FWER vs FDR',
+    category: 'Statistical Inference',
+    beginner:
+      'When testing many strategies, you can control how often any false alarm slips through (FWER) or the fraction of false discoveries (FDR).',
+    professional:
+      "Reality Check and SPA target family-wise error rate (FWER) for max-statistic tests. Benjamini–Hochberg FDR is looser but useful for screening many signals. Document which error rate your pipeline targets when running strategy tournaments.",
+    math: 'FWER = P(V ≥ 1); FDR = E[V/R | R>0] under multiple hypotheses.',
+    related: ['reality-check', 'spa', 'selection-bias'],
+  },
+  {
+    id: 'cv-generalization-bias',
+    name: 'CV Generalization Bias',
+    category: 'Statistical Inference',
+    beginner:
+      'Even honest cross-validation still estimates future error with noise and some built-in optimism.',
+    professional:
+      'Cross-validation estimates expected out-of-sample error but is not unbiased with zero variance. Nested CV reduces tuning contamination; CPCV reports a distribution. Do not treat mean CV score as exact future performance.',
+    math: 'E[Err̂_CV] ≈ Err + optimism; Var(Err̂_CV) > 0 across folds/paths.',
+    related: ['nested-cv', 'cpcv', 'purged-cv'],
+  },
+  {
+    id: 'prequential-risk',
+    name: 'Prequential Risk',
+    category: 'Statistical Inference',
+    beginner:
+      'Score your forecasts one step at a time using only past data — same spirit as walk-forward.',
+    professional:
+      'Prequential (predictive sequential) evaluation averages per-step forecast loss. Walk-forward OOS is the trading analogue: each step uses an information set available at deployment time. Connects validation to online forecasting literature.',
+    math: 'L̄_T = (1/T) Σ_{t=1}^T ℓ(y_t, ŷ_t); WFA minimizes cumulative loss under refitting.',
+    related: ['walk-forward', 'oos', 'policy-estimand'],
+  },
+  {
+    id: 'feature-lookback-lf',
+    name: 'Feature Lookback (L_f)',
+    category: 'Statistical Inference',
+    beginner:
+      'Rolling indicators use past days — purge must account for that window, not just label horizon H.',
+    professional:
+      'If features at t depend on returns over [t−L_f, t], purge distance must use P_k = max(H, L_f). Underestimating L_f causes feature leakage into test folds even when labels are purged correctly.',
+    math: 'P_k = max(H, L_f); purge t if [t-P_k, t+P_k] ∩ V_k ≠ ∅.',
+    related: ['purged-cv', 'feature-leakage', 'horizon-h'],
+  },
+  {
+    id: 'mixing-conditions',
+    name: 'Mixing / Ergodicity Conditions',
+    category: 'Statistical Inference',
+    beginner:
+      'For time averages to mean something, past must eventually “forget” — breaks after big regime shifts.',
+    professional:
+      'Ergodicity and α-mixing (or similar) underpin LLN/CLT for dependent series and bootstrap validity. Structural breaks violate these; use rolling WFA, regime splits, and stress tests rather than assuming one long sample is one DGP.',
+    math: '(1/T)Σ s_t → E[s_t] a.s.; mixing: α(m) → 0 as m → ∞.',
+    related: ['ergodicity', 'stationarity', 'regime'],
+  },
+  {
+    id: 'panel-clustering',
+    name: 'Panel Clustering / HAC Inference',
+    category: 'Statistical Inference',
+    beginner:
+      'With many stocks on the same day, rows on one date are related — cluster by date when testing.',
+    professional:
+      'Cross-sectional factor and portfolio regressions require cluster-robust SEs (by date) or two-way clustering (date × firm). Fama–MacBeth runs cross-sections per t then time-series inference on coefficients with Newey–West. Never shuffle panel rows for CV.',
+    math: 'SE_cluster-date allows arbitrary corr within t; NW SE on {γ̂_t} for Fama–MacBeth.',
+    related: ['factor-model', 'purged-cv', 'monte-carlo-simulation'],
   },
 ];
 

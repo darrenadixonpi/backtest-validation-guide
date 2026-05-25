@@ -33,6 +33,7 @@ export const CATEGORIES = [
   'Split Methods',
   'Bootstrap & Uncertainty',
   'Multiple Testing',
+  'Statistical Inference',
   'Diagnostics',
   'Live Trading',
 ] as const;

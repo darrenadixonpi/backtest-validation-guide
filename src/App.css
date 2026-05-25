@@ -541,6 +541,174 @@ figcaption {
   color: #c5d4ea;
 }
 
+.math-display {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.math-formula {
+  overflow-x: auto;
+  padding: 10px 12px;
+  background: #0f1115;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+}
+
+.math-formula-compact {
+  padding: 8px 10px;
+}
+
+.math-formula .katex {
+  color: #dce6f5;
+  font-size: 1.05rem;
+}
+
+.math-formula .katex-display {
+  margin: 0;
+}
+
+.math-note {
+  margin: 0;
+  color: #aeb4bf;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.term-detail .math-display {
+  margin-bottom: 12px;
+}
+
+.math-block-highlight {
+  border-color: #355a8a;
+}
+
+.sub-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sub-tab {
+  background: #0f1115;
+  color: #c8ccd4;
+  border: 1px solid #2a2f3a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.sub-tab.active {
+  background: #1e3a5f;
+  border-color: #4a7cbf;
+  color: #fff;
+}
+
+.stats-table th,
+.stats-table td {
+  font-size: 0.88rem;
+  vertical-align: top;
+}
+
+.linkish {
+  background: none;
+  border: none;
+  color: #7aa2f7;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.assumption-progress {
+  margin: 0 0 12px;
+  color: #aeb4bf;
+}
+
+.assumption-group {
+  margin-bottom: 16px;
+}
+
+.assumption-group h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #aeb4bf;
+}
+
+.assumption-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.assumption-list li {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: #0f1115;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+}
+
+.assumption-list label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.assumption-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.check-hint {
+  color: #8b919c;
+  font-size: 0.85rem;
+}
+
+.limits-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.limits-list li {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: #0f1115;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+}
+
+.limits-list p {
+  margin: 6px 0 0;
+  color: #aeb4bf;
+}
+
+.panel-stat-block {
+  margin-bottom: 12px;
+}
+
+.stats-references {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2f3a;
+}
+
+.stats-references h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.stats-references ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #aeb4bf;
+  font-size: 0.9rem;
+}
+
 footer {
   margin-top: 24px;
   padding-top: 16px;

@@ -1,0 +1,319 @@
+export type HypothesisTest = {
+  method: string;
+  nullHypothesis: string;
+  statistic: string;
+  bootstrapOrNull: string;
+  rejectionMeans: string;
+  relatedTermId?: string;
+};
+
+export type AssumptionItem = {
+  id: string;
+  category: string;
+  assumption: string;
+  whyItMatters: string;
+  howToCheck: string;
+};
+
+export const ESTIMAND_BLOCKS = {
+  fixedTheta: {
+    title: 'Fixed-parameter estimand',
+    description:
+      'Performance of a strategy with θ frozen before evaluation. Valid only when θ was not selected using the same sample.',
+    latex: [
+      'SR^*(\\theta) = \\mu(\\theta) / \\sigma(\\theta), \\quad \\mu(\\theta)=\\mathbb{E}[s_t(\\theta)],\\; \\sigma^2(\\theta)=\\mathrm{Var}(s_t(\\theta))',
+      '\\widehat{SR}(\\theta) = \\bar{s}(\\theta)/\\hat{\\sigma}(\\theta), \\quad \\bar{s}(\\theta)=\\frac{1}{T}\\sum_{t=1}^T s_t(\\theta)',
+    ],
+  },
+  policy: {
+    title: 'Policy / post-selection estimand (walk-forward, nested CV)',
+    description:
+      'What you actually deploy: a rule that refits and selects θ over time. This is the primary estimand for systematic trading validation.',
+    latex: [
+      '\\hat{\\theta}_k = \\arg\\max_{\\theta\\in\\Theta} Score(\\theta; T_k)',
+      '\\mathcal{R}_{OOS} = \\frac{1}{|V|}\\sum_{k}\\sum_{t\\in V_k} s_t(\\hat{\\theta}_k)',
+      'SR^*_{policy} = \\mathbb{E}[s_t(\\hat{\\theta}_{k(t)})]/\\sqrt{\\mathrm{Var}(s_t(\\hat{\\theta}_{k(t)}))}',
+    ],
+  },
+  excessReturn: {
+    title: 'Excess return convention',
+    description: 'State explicitly whether returns are excess over a risk-free rate r_f or absolute.',
+    latex: [
+      's_t^{ex} = s_t - r_f \\quad \\text{(per period)}',
+      'SR_{ex} = \\mathbb{E}[s_t^{ex}]/\\sigma(s_t^{ex})',
+    ],
+  },
+};
+
+export const SHARPE_INFERENCE = {
+  lo: {
+    title: 'Effective sample size under autocorrelation (Lo, 2002)',
+    latex: [
+      'T^* = T \\cdot \\frac{1-\\rho_1}{1+\\rho_1} \\quad \\text{(first-order approximation; extend with higher lags for precision)}',
+      'SE(\\widehat{SR}) \\approx \\sqrt{\\frac{1 + 0.5\\,\\widehat{SR}^2}{T^*}}',
+    ],
+    note: 'Positive autocorrelation inflates apparent precision. Use block bootstrap or Lo-adjusted SE before claiming significance.',
+  },
+  nonNormal: {
+    title: 'Non-normality (skew & kurtosis)',
+    latex: [
+      'SE(\\widehat{SR}) \\approx \\sqrt{\\frac{1 - \\gamma_3\\widehat{SR} + \\frac{\\gamma_4-1}{4}\\widehat{SR}^2}{T-1}}',
+    ],
+    note: 'γ₃ = skewness, γ₄ = kurtosis of strategy returns. Fat tails and negative skew widen uncertainty.',
+  },
+  dsr: {
+    title: 'Deflated Sharpe Ratio (Bailey & Lopez de Prado) — full form',
+    latex: [
+      'SR_0 = \\mathbb{E}\\left[\\max_{m\\le M}\\widehat{SR}_m \\mid H_0\\right] \\approx \\sqrt{V(\\widehat{SR})}\\left((1-\\gamma)\\Phi^{-1}(1-1/M)+\\gamma\\,\\Phi^{-1}(1-1/M e^{-1})\\right)',
+      'V(\\widehat{SR}) = \\frac{1}{T-1}\\left(1 - \\gamma_3\\widehat{SR} + \\frac{\\gamma_4-1}{4}\\widehat{SR}^2\\right)',
+      'DSR = \\Phi\\left(\\frac{\\widehat{SR}-SR_0}{\\sqrt{V(\\widehat{SR})}}\\cdot\\sqrt{T-1}\\right)',
+    ],
+    note: 'γ = Euler–Mascheroni constant. Document M (number of trials) honestly — includes informal tweaks.',
+  },
+};
+
+export const PURGE_FORMAL = {
+  title: 'Purged train set with label horizon H and feature lookback L_f',
+  latex: [
+    'P_k = \\max(H, L_f)',
+    'T_k^{purged} = \\{ t \\in T : [t-P_k,\\, t+P_k] \\cap V_k = \\emptyset \\}',
+    'T_k^{embargo} = T_k^{purged} \\setminus \\{ t : a_k-E \\le t \\le b_k+E \\}',
+  ],
+  note: 'V_k = [a_k, b_k] is test fold. Embargo E attenuates autocorrelation leakage beyond label overlap.',
+};
+
+export const HYPOTHESIS_TESTS: HypothesisTest[] = [
+  {
+    method: 'Permutation / randomization',
+    nullHypothesis: 'Strategy returns are exchangeable with a null that destroys signal (e.g. sign-flip or circular shift).',
+    statistic: 'SR_obs or cumulative return',
+    bootstrapOrNull: 'Empirical null from B randomized series; no parametric bootstrap required.',
+    rejectionMeans: 'Observed performance is unlikely under the chosen null randomization — not proof of future edge.',
+    relatedTermId: 'permutation-test',
+  },
+  {
+    method: 'Block bootstrap (MBB / stationary)',
+    nullHypothesis: 'Not a sharp H₀ test — estimates sampling distribution of SR̂ (or mean) under temporal dependence.',
+    statistic: 'SR̂, mean return, max drawdown, etc.',
+    bootstrapOrNull: 'Resample blocks of {s_t}; valid if L→∞ and L/T→0.',
+    rejectionMeans: 'CI excludes zero → performance estimate statistically distinguishable from 0 given dependence model — conditional on fixed θ.',
+    relatedTermId: 'block-bootstrap',
+  },
+  {
+    method: "White's Reality Check",
+    nullHypothesis: 'H₀: E[d_{m,t}] ≤ 0 for all strategies m vs benchmark (no strategy beats benchmark).',
+    statistic: 'T_M = max_m √T d̄_m',
+    bootstrapOrNull: 'Stationary bootstrap on centered loss differentials under H₀.',
+    rejectionMeans: 'At least one strategy beats benchmark after adjusting for selecting the max — FWER controlled.',
+    relatedTermId: 'reality-check',
+  },
+  {
+    method: "Hansen's SPA",
+    nullHypothesis: 'Same as Reality Check: no superior predictive ability vs benchmark.',
+    statistic: 'max_m √T (d̄_m − d̄_m^+)',
+    bootstrapOrNull: 'Recentered stationary bootstrap — improved power vs RC when many models are inferior.',
+    rejectionMeans: 'Evidence that some strategy beats benchmark; still does not guarantee OOS live P&L.',
+    relatedTermId: 'spa',
+  },
+  {
+    method: 'Deflated Sharpe Ratio (DSR)',
+    nullHypothesis: 'H₀: true SR ≤ 0 after adjusting for M trials, skew, kurtosis, and sample length.',
+    statistic: 'DSR = Φ(z_deflated) as in Bailey–LdP',
+    bootstrapOrNull: 'Analytic null based on expected max SR under multiple testing — not a resampling test.',
+    rejectionMeans: 'Observed SR exceeds what multiple uninformed trials would plausibly produce — still not causal proof.',
+    relatedTermId: 'dsr',
+  },
+  {
+    method: 'PBO (via CPCV)',
+    nullHypothesis: 'H₀: IS-optimal parameter set is no better than median OOS among candidates (overfit).',
+    statistic: 'PBO = fraction of CPCV paths where rank_OOS(IS-best) > ⌊|Θ|/2⌋',
+    bootstrapOrNull: 'Combinatorial purged splits — empirical over split ensemble, not i.i.d. bootstrap.',
+    rejectionMeans: 'High PBO → IS winner likely overfit; low PBO supports robustness but does not prove alpha.',
+    relatedTermId: 'pbo',
+  },
+  {
+    method: 'Walk-forward OOS',
+    nullHypothesis: 'Not a single hypothesis test — prequential evaluation of a refitting policy.',
+    statistic: 'R_OOS, SR_OOS on concatenated OOS periods',
+    bootstrapOrNull: 'Block bootstrap on OOS returns for CI; does not include selection uncertainty unless nested.',
+    rejectionMeans: 'Positive OOS under honest splits supports generalization; path-dependent and one historical draw.',
+    relatedTermId: 'walk-forward',
+  },
+];
+
+export const ASSUMPTIONS: AssumptionItem[] = [
+  {
+    id: 'chronology',
+    category: 'Split design',
+    assumption: 'Train strictly precedes test; no random shuffle of time indices.',
+    whyItMatters: 'Random CV breaks causality and inflates scores under dependence.',
+    howToCheck: 'Audit split code; verify max(T_train) < min(T_test) per fold.',
+  },
+  {
+    id: 'purge-h',
+    category: 'Leakage',
+    assumption: 'Purge distance P_k ≥ max(H, L_f) for label horizon H and feature lookback L_f.',
+    whyItMatters: 'Underestimating P_k is the most common silent bug in financial ML.',
+    howToCheck: 'Trace label and feature windows against test fold boundaries.',
+  },
+  {
+    id: 'embargo',
+    category: 'Leakage',
+    assumption: 'Embargo E > 0 when returns/features are autocorrelated even if H = 0.',
+    whyItMatters: 'Serial correlation transmits information across fold borders.',
+    howToCheck: 'Inspect ACF of strategy returns; increase E if ρ₁ significant.',
+  },
+  {
+    id: 'stationarity-window',
+    category: 'DGP',
+    assumption: 'Data-generating process stable enough within each evaluation window — or use rolling WFA.',
+    whyItMatters: 'Structural breaks make pooled OOS a mixture of incompatible regimes.',
+    howToCheck: 'Regime splits; CUSUM/changepoint on mean/vol of s_t.',
+  },
+  {
+    id: 'ergodicity',
+    category: 'DGP',
+    assumption: 'Time averages approximate population expectations (ergodicity / mixing).',
+    whyItMatters: 'Without mixing, long backtests need not predict future moments.',
+    howToCheck: 'Compare early vs late subsamples; rolling parameter stability.',
+  },
+  {
+    id: 'block-length',
+    category: 'Bootstrap',
+    assumption: 'Block length L chosen via theory or data (e.g. Politis–White, spectral decay).',
+    whyItMatters: 'L too small → destroys dependence; L too large → few blocks, wide CIs.',
+    howToCheck: 'Sensitivity analysis over L; report CI range across L grid.',
+  },
+  {
+    id: 'trial-count',
+    category: 'Multiplicity',
+    assumption: 'All trials M documented (grid searches, manual tweaks, abandoned runs).',
+    whyItMatters: 'DSR/PBO/SPA adjust for M; hidden trials invalidate multiplicity corrections.',
+    howToCheck: 'Research log; version control for parameter configs.',
+  },
+  {
+    id: 'nested-tuning',
+    category: 'Selection',
+    assumption: 'Hyperparameters tuned only on outer-train data when |Θ| > 1.',
+    whyItMatters: 'Flat tuning on full history contaminates reported OOS.',
+    howToCheck: 'Code review: inner loop never sees outer-test indices.',
+  },
+  {
+    id: 'post-selection',
+    category: 'Selection',
+    assumption: 'Bootstrap CIs distinguish conditional (fixed θ̂) vs unconditional (policy) inference.',
+    whyItMatters: 'Bootstrap on OOS after selection underestimates uncertainty without nested resampling.',
+    howToCheck: 'State whether CI is for θ̂ fixed or for full selection pipeline.',
+  },
+  {
+    id: 'cost-model',
+    category: 'Implementation',
+    assumption: 'Transaction costs, slippage, and capacity constraints modeled conservatively.',
+    whyItMatters: 'Gross alpha often dies after realistic c_t.',
+    howToCheck: 'Stress λ_c ∈ {1, 2, 3} on costs; forward test reconciliation.',
+  },
+  {
+    id: 'panel-cluster',
+    category: 'Panel / factor',
+    assumption: 'Cross-sectional rows not treated as i.i.d.; cluster inference by date.',
+    whyItMatters: 'Panel factor regressions need HAC/cluster SEs — row shuffle is invalid.',
+    howToCheck: 'Split by time; cluster-robust SEs (two-way if needed).',
+  },
+];
+
+export const NOT_PROVE = [
+  {
+    claim: 'Positive OOS Sharpe guarantees future profitability.',
+    why: 'OOS is one historical path; regimes change; microstructure differs in live trading.',
+  },
+  {
+    claim: 'Passing DSR/SPA/PBO proves alpha is “real” causally.',
+    why: 'Tests adjust for search and dependence under stated nulls — they do not establish economic mechanism or stationarity forever.',
+  },
+  {
+    claim: 'Block bootstrap CI on OOS includes parameter-selection uncertainty.',
+    why: 'Standard bootstrap is conditional on θ̂ unless nested inside the resampling loop.',
+  },
+  {
+    claim: 'Purged CV makes folds independent.',
+    why: 'CPCV paths overlap; split ensembles are dependent — report distributions, not i.i.d. averages without care.',
+  },
+  {
+    claim: 'High in-sample fit with “good” OOS once proves the model is correct.',
+    why: 'Single holdout has high variance; Simpson/regime effects can hide failure modes.',
+  },
+  {
+    claim: 'Kaggle/competition leaderboard score equals deployable OOS.',
+    why: 'Competition metrics often omit costs, realistic execution, and researcher degrees of freedom off-platform.',
+  },
+  {
+    claim: 'Stationarity assumed because the backtest is long.',
+    why: 'Long samples can mix multiple regimes; ergodicity is an assumption, not a gift of T.',
+  },
+];
+
+export const PANEL_STATS = {
+  title: 'Panel & cross-sectional inference',
+  blocks: [
+    {
+      heading: 'Factor model (per date cross-section)',
+      latex: [
+        'r_{i,t} = \\sum_k \\beta_{i,k} f_{k,t} + \\varepsilon_{i,t}',
+        'H_0: \\alpha_i = 0 \\text{ in } r_{i,t} = \\alpha_i + \\sum_k \\beta_{i,k} f_{k,t} + \\varepsilon_{i,t}',
+      ],
+    },
+    {
+      heading: 'Fama–MacBeth (two-pass)',
+      latex: [
+        '\\hat{\\gamma}_t = (X_t^\\prime X_t)^{-1} X_t^\\prime r_t \\quad \\text{each date } t',
+        '\\bar{\\gamma} = \\frac{1}{T}\\sum_t \\hat{\\gamma}_t, \\quad SE(\\bar{\\gamma}) \\text{ with Newey–West on } \\{\\hat{\\gamma}_t\\}',
+      ],
+    },
+    {
+      heading: 'Cluster-robust inference',
+      latex: [
+        'SE_{cluster\\text{-}date} \\text{ allows arbitrary cross-sectional correlation within } t',
+        'SE_{two\\text{-}way} \\text{ clusters by date and firm when applicable}',
+      ],
+    },
+    {
+      heading: 'Panel split discipline',
+      latex: [
+        '\\text{Train/test split by } t \\text{, never shuffle rows } (i,t)',
+        '\\text{Purging: remove dates where feature/label windows overlap test dates}',
+      ],
+    },
+  ],
+  notes: [
+    'Intraday single-asset WFA differs from panel factor research — do not reuse row-wise K-fold habits.',
+    'Monte Carlo in factor work often simulates factor returns F_t, not i.i.d. row shuffles of r_{i,t}.',
+  ],
+};
+
+export const PREQUENTIAL = {
+  title: 'Prequential (sequential forecast) view',
+  latex: [
+    '\\bar{L}_T = \\frac{1}{T}\\sum_{t=1}^T \\ell(y_t, \\hat{y}_t)',
+    '\\text{Walk-forward OOS minimizes cumulative loss under refitting policy}',
+  ],
+  note: 'Connects WFA to online forecasting: each step uses only past data — aligns with causal information sets.',
+};
+
+export const CV_BIAS = {
+  title: 'Cross-validation generalization error',
+  latex: [
+    '\\mathbb{E}[\\widehat{Err}_{CV}] \\approx Err + \\text{optimism bias}',
+    '\\text{Nested CV reduces tuning contamination; purging removes leakage bias}',
+  ],
+  note: 'Even correct CV estimates expected error, not with zero variance — report fold distribution (CPCV).',
+};
+
+export const REFERENCES_EXTENDED = [
+  'Lopez de Prado — Advances in Financial Machine Learning (purged CV, CPCV, embargo)',
+  'Bailey & Lopez de Prado — Deflated Sharpe Ratio; Bailey et al. — PBO',
+  'White (2000) — Reality Check; Hansen (2005) — SPA',
+  'Politis & Romano (1994) — stationary bootstrap; Politis & White — block length selection',
+  'Lo (2002) — autocorrelation and Sharpe ratio inference',
+  'Jobson & Korkie; Mertens — Sharpe ratio variance under non-normality',
+  'Fama & MacBeth (1973); Newey & West — panel HAC inference',
+];

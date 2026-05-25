@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { Level, Term } from '../data/types';
 import { CATEGORIES } from '../data/types';
 import { TERMS, termById } from '../data/terms';
+import { MathDisplay } from './MathDisplay';
 
 type Props = {
   level: Level;
@@ -97,7 +98,11 @@ export function GlossaryPanel({ level, search, onSearch, selectedTermId, onSelec
               No closed-form estimand — scenario/diagnostic family. Showing professional definition.
             </p>
           )}
-          <p className="term-body">{termText(active, level)}</p>
+          {level === 'math' && active.math ? (
+            <MathDisplay text={active.math} />
+          ) : (
+            <p className="term-body">{termText(active, level)}</p>
+          )}
           {level !== 'math' && active.math && (
             <p className="hint">Switch to Math detail level (or open Math framework tab) for notation.</p>
           )}

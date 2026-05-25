@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { GlossaryPanel } from './components/GlossaryPanel';
+import { MathFramework } from './components/MathFramework';
 import { MethodComparisonTable, MethodExplorer } from './components/MethodExplorer';
 import { ProtocolRecommender } from './components/ProtocolRecommender';
 import { ScenarioPlaybook } from './components/ScenarioPlaybook';
+import { StatisticianAppendix } from './components/StatisticianAppendix';
 import { ValidationCharts } from './components/ValidationCharts';
 import { PIPELINE_ROWS } from './data/methods';
 import { TERMS } from './data/terms';
@@ -10,7 +12,7 @@ import type { Level } from './data/types';
 import type { StrategyMode, WindowMode } from './components/ProtocolRecommender';
 import './App.css';
 
-type Section = 'overview' | 'playbook' | 'protocol' | 'methods' | 'glossary' | 'math';
+type Section = 'overview' | 'playbook' | 'protocol' | 'methods' | 'glossary' | 'math' | 'statistics';
 
 const LEVELS: Level[] = ['beginner', 'professional', 'math'];
 
@@ -51,9 +53,9 @@ export default function App() {
           <p className="eyebrow">Interactive reference</p>
           <h1>Financial Time-Series Validation Guide</h1>
           <p className="lede">
-            Backtesting validation from first principles through professional practice: walk-forward
-            analysis, purged CV, block bootstrap, and multiplicity corrections. Use Beginner /
-            Professional / Math detail levels; the Math framework tab covers unified notation.
+            Backtesting validation from practitioner workflows through formal statistical inference:
+            walk-forward analysis, purged CV, block bootstrap, multiplicity corrections, estimands,
+            and explicit hypothesis statements.
           </p>
         </div>
         <div className="stats">
@@ -82,6 +84,7 @@ export default function App() {
               ['methods', 'Methods'],
               ['glossary', 'Glossary'],
               ['math', 'Math framework'],
+              ['statistics', 'Statistics'],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -121,6 +124,10 @@ export default function App() {
                 still validates microstructure (fills, latency) that bar backtests cannot.
                 Indicator-only intraday rules with expanding walk-forward fit the lighter protocol;
                 add purged nested CV when ML models or large parameter grids enter the pipeline.
+              </p>
+              <p className="muted">
+                For model-review rigor, use the Statistics tab: hypothesis table, assumptions
+                checklist, and limits of inference.
               </p>
             </section>
 
@@ -180,69 +187,15 @@ export default function App() {
           />
         )}
 
-        {section === 'math' && (
-          <section className="panel math-panel">
-            <div className="panel-head">
-              <h2>Unified mathematical framework</h2>
-              <p className="muted">
-                Condensed notation — use Glossary → Math level for term-by-term definitions.
-              </p>
-            </div>
+        {section === 'math' && <MathFramework />}
 
-            <div className="math-blocks">
-              <article>
-                <h3>Setup</h3>
-                <pre>{`s_t(θ) = w_{t-1}(θ) r_t − c_t
-SR(θ) = μ(θ) / σ(θ)
-θ̂ = argmax_{θ∈Θ} Score(θ; T_train)`}</pre>
-              </article>
-
-              <article>
-                <h3>Leakage condition (labels)</h3>
-                <pre>{`y_t = h(r_{t+1}, …, r_{t+H})
-Leak if ∃ t ∈ T_train, τ ∈ T_test : t < τ ≤ t+H`}</pre>
-              </article>
-
-              <article>
-                <h3>Purged training set</h3>
-                <pre>{`T_k^purged = { t : [t, t+H] ∩ V_k = ∅ }
-+ embargo E around test fold`}</pre>
-              </article>
-
-              <article>
-                <h3>Walk-forward</h3>
-                <pre>{`θ̂_k fit on T_k ; evaluate on V_k
-max(T_k) < min(V_k)
-Rolling: |T_k| = L fixed
-Expanding: T_k = {1,…,b_k}`}</pre>
-              </article>
-
-              <article>
-                <h3>Bias decomposition</h3>
-                <pre>{`SR̂_IS(θ̂) − SR*(θ̂) =
-  [SR̂_IS − SR̂_OOS] + [SR̂_OOS − SR*]
-   leakage/overfit      estimation error`}</pre>
-              </article>
-
-              <article>
-                <h3>Multiplicity</h3>
-                <pre>{`PBO = P(IS-best θ ranks below median OOS)
-DSR: deflated SR after M trials
-SPA / Reality Check: max_m √T d̄_m bootstrap`}</pre>
-              </article>
-            </div>
-
-            <p className="hint">
-              The Formulas toggle was removed — Math level (toolbar) and this tab cover notation.
-            </p>
-          </section>
-        )}
+        {section === 'statistics' && <StatisticianAppendix onSelectTerm={jumpToTerm} />}
       </main>
 
       <footer>
         <p>
-          References: Lopez de Prado (purged CV, CPCV); Bailey et al. (PBO, DSR); White (Reality
-          Check); Hansen (SPA); Politis & Romano (block bootstrap).
+          References: Lopez de Prado; Bailey et al.; White; Hansen; Politis & Romano; Lo (2002);
+          Fama–MacBeth; Newey–West.
         </p>
       </footer>
     </div>
