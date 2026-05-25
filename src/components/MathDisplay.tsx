@@ -2,7 +2,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
 function protectScoreSemicolons(input: string) {
-  return input.replace(/Score\(([^)]*?);([^)]*?)\)/g, (_, a, b) => `Score(${a}@@SCORE_SEMI@@${b})`);
+  return input.replace(/Score(?:_\w+)?\(([^)]*?);([^)]*?)\)/g, (_, a, b) => `Score(${a}@@SCORE_SEMI@@${b})`);
 }
 
 function restoreScoreSemicolons(input: string) {
@@ -14,14 +14,29 @@ function splitClauses(input: string) {
   return protectedInput.split('; ').map((part) => restoreScoreSemicolons(part.trim())).filter(Boolean);
 }
 
-function looksLikeFormula(clause: string) {
-  return /[=^_\\∑ΣβεμσθΘργΦ√Δλωτ]|\\frac|\\sum|\\max|\\min|\\arg|\\widehat|\\hat|\\bar|\\emptyset|\\cap|\\in|\\leq|\\geq|\\neq/.test(
-    clause,
-  );
+function braceMultiLetterScripts(input: string) {
+  return input.replace(/([_^])([A-Za-z][A-Za-z0-9]*)/g, '$1{$2}');
 }
 
-function normalizeLatex(clause: string) {
-  let s = clause
+function fixGluedLatexCommands(input: string) {
+  // Do not rewrite "rank" inside LaTeX command arguments (e.g. \text{rank}, \operatorname{rank}).
+  const rankPrefix = '(?<![A-Za-z\\\\{])';
+  return input
+    .replace(/\\leq(?=[A-Za-z0-9|])/g, '\\leq ')
+    .replace(/\\geq(?=[A-Za-z0-9|])/g, '\\geq ')
+    .replace(/\\neq(?=[A-Za-z0-9|])/g, '\\neq ')
+    .replace(/\\in(?=[A-Za-z0-9|{])/g, '\\in ')
+    .replace(/\\forall(?=[A-Za-z0-9|])/g, '\\forall ')
+    .replace(/\\sqrt([A-Za-z0-9_])/g, '\\sqrt{$1}')
+    .replace(/\\Delta(?=[A-Za-z_])/g, '\\Delta ')
+    .replace(/\bmax\b/g, '\\max')
+    .replace(new RegExp(`${rankPrefix}rank_`, 'g'), '\\operatorname{rank}_')
+    .replace(new RegExp(`${rankPrefix}rank\\b`, 'g'), '\\operatorname{rank} ');
+}
+
+/** Unicode + symbol fixes for math segments only — never wraps English prose. */
+export function normalizeMathSegment(latex: string) {
+  let s = latex
     .replace(/Score\(([^;]+); ([^)]+)\)/g, 'Score($1 \\mid $2)')
     .replace(/\bargmax\b/g, '\\arg\\max')
     .replace(/θ̂/g, '\\hat{\\theta}')
@@ -48,18 +63,19 @@ function normalizeLatex(clause: string) {
     .replace(/ℓ/g, '\\ell')
     .replace(/Σ_/g, '\\sum_')
     .replace(/Σ/g, '\\sum')
+    .replace(/√([A-Za-z0-9_])/g, '\\sqrt{$1}')
     .replace(/√/g, '\\sqrt')
     .replace(/·/g, '\\cdot')
     .replace(/−/g, '-')
-    .replace(/≤/g, '\\leq')
-    .replace(/≥/g, '\\geq')
-    .replace(/≠/g, '\\neq')
+    .replace(/≤/g, '\\leq ')
+    .replace(/≥/g, '\\geq ')
+    .replace(/≠/g, '\\neq ')
     .replace(/≈/g, '\\approx')
     .replace(/∅/g, '\\emptyset')
     .replace(/∩/g, '\\cap')
-    .replace(/∈/g, '\\in')
+    .replace(/∈/g, '\\in ')
     .replace(/⊂/g, '\\subset')
-    .replace(/∀/g, '\\forall')
+    .replace(/∀/g, '\\forall ')
     .replace(/∃/g, '\\exists')
     .replace(/…/g, '\\ldots')
     .replace(/←/g, '\\leftarrow')
@@ -73,362 +89,381 @@ function normalizeLatex(clause: string) {
     .replace(/V_test/g, 'V_{\\mathrm{test}}')
     .replace(/Score_inner/g, 'Score_{\\mathrm{inner}}')
     .replace(/i\.i\.d\./g, '\\text{i.i.d.}')
-    .replace(/w\.r\.t\./g, '\\text{w.r.t.}')
     .replace(/P&L/g, '\\text{P\\&L}');
 
-  return wrapGlossaryProse(s);
+  s = braceMultiLetterScripts(s);
+  s = fixGluedLatexCommands(s);
+  return s;
 }
 
-const MATH_IDENTIFIERS = new Set([
-  'Corr',
+const MATH_ABBREVS = [
+  'Score_inner',
   'Score',
-  'Sign',
-  'Cov',
-  'Var',
-  'max',
-  'min',
-  'argmax',
-  'rank',
-  'Err',
-  'IS',
+  'SR',
   'OOS',
+  'IS',
   'ORB',
   'WFA',
   'DSR',
   'PBO',
   'SPA',
-  'MBB',
-  'CPCV',
   'FWER',
   'FDR',
-  'NW',
   'HAC',
-  'Geometric',
-  'Bootstrap',
-  'Parametric',
-  'Slippage',
-  'Leaderboard',
-  'DoF',
-]);
+  'MBB',
+  'CBB',
+  'Corr',
+  'Cov',
+  'Var',
+  'Sign',
+  'Err',
+];
 
 const ENGLISH_WORDS = new Set([
-  'and',
-  'or',
-  'if',
-  'on',
-  'at',
-  'in',
-  'of',
-  'to',
+  'features',
+  'feature',
+  'measurable',
+  'reset',
+  'state',
+  'each',
+  'require',
+  'forbid',
+  'must',
+  'use',
   'for',
-  'vs',
-  'not',
-  'no',
-  'as',
-  'by',
-  'is',
-  'are',
+  'and',
   'the',
-  'a',
-  'an',
   'with',
   'when',
   'where',
-  'only',
+  'under',
+  'over',
+  'from',
+  'that',
+  'not',
+  'are',
+  'has',
+  'have',
+  'depend',
+  'depending',
   'leak',
-  'bias',
   'purge',
   'valid',
-  'fit',
-  'using',
-  'estimated',
-  'evaluate',
-  'requires',
-  'require',
-  'forbid',
-  'exclude',
+  'if',
+  'sample',
+  'weak',
+  'block',
+  'blocks',
   'resample',
-  'simulate',
-  'allows',
+  'taken',
   'around',
-  'strictly',
-  'before',
-  'after',
-  'often',
-  'given',
-  'independent',
-  'invalid',
+  'exclude',
+  'training',
+  'simulate',
+  'estimate',
+  'leaderboard',
+  'score',
+  'hidden',
   'unless',
+  'split',
+  'design',
   'matches',
   'deployment',
-  'hidden',
-  'metric',
-  'score',
-  'blocks',
-  'block',
-  'indices',
-  'taken',
+  'panel',
+  'row',
+  'date',
+  'fixed',
+  'given',
+  'policy',
+  'across',
+  'folds',
+  'paths',
+  'optimism',
+  'multiple',
+  'hypotheses',
+  'minimizes',
+  'cumulative',
+  'loss',
+  'refitting',
+  'stationary',
   'series',
-  'bootstrap',
+  'moving',
+  'circular',
+  'permutation',
   'recentered',
-  'model',
-  'beats',
-  'benchmark',
+  'bootstrap',
+  'parametric',
   'regime',
   'objective',
-  'feature',
-  'features',
-  'must',
-  'use',
-  'data',
+  'stress',
+  'includes',
+  'slippage',
+  'liquidity',
+  'fees',
+  'fill',
+  'decision',
   'release',
   'time',
-  'forbid',
   'revised',
   'values',
-  'depends',
-  'varies',
-  'annualize',
-  'sample',
-  'periods',
-  'per',
-  'year',
-  'under',
-  'mixing',
-  'weak',
-  'stationarity',
-  'information',
-  'train',
-  'test',
-  'that',
-  'each',
-  'step',
-  'concatenate',
-  'outer',
-  'inner',
-  'rank',
-  'across',
-  'splits',
-  'holdout',
-  'timeline',
-  'replacement',
-  'length',
-  'constant',
   'signal',
+  'high',
+  'low',
   'session',
   'filter',
-  'reset',
-  'state',
   'simulator',
   'maps',
   'fills',
   'timestamps',
   'explicitly',
-  'over',
-  'high',
-  'low',
-  'from',
-  'require',
+  'fit',
   'claims',
-  'estimate',
-  'optimism',
-  'paths',
-  'folds',
-  'minimizes',
-  'cumulative',
-  'loss',
-  'refitting',
+  'allows',
   'arbitrary',
   'corr',
   'within',
-  'estimated',
-  'evaluate',
-  'training',
-  'index',
-  'training',
-  'exclude',
-  'fold',
-  'design',
-  'split',
-  'panel',
-  'row',
-  'rows',
-  'date',
-  'fixed',
-  'policy',
-  'resample',
-  'replicate',
-  'replicates',
-  'validate',
-  'path',
-  'measurable',
-  'depending',
-  'algebra',
-  'deflated',
-  'uses',
-  'expected',
-  'fraction',
-  'paths',
   'rank',
-  'likely',
-  'overfit',
-  'supports',
-  'robustness',
-  'prove',
-  'alpha',
-  'positive',
-  'honest',
-  'generalization',
-  'path-dependent',
-  'historical',
-  'draw',
+  'holdout',
+  'timeline',
+  'evaluate',
+  'concatenate',
+  'outer',
+  'test',
+  'inner',
+  'on',
+  'at',
+  'to',
+  'be',
+  'in',
+  'of',
+  'or',
+  'an',
+  'a',
+  'is',
+  'as',
+  'it',
+  'no',
+  'all',
+  'any',
+  'some',
+  'only',
+  'also',
+  'can',
+  'data',
+  'index',
+  'indices',
+  'length',
+  'constant',
+  'independent',
+  'ergodic',
+  'conditions',
+  'mixing',
+  'often',
+  'varies',
+  'stochastic',
+  'volatility',
+  'bias',
+  'depends',
+  'gap',
+  'increases',
+  'researcher',
+  'information',
+  'algebra',
+  'strictly',
+  'before',
+  'after',
+  'open',
+  'boundaries',
+  'bar',
+  'fold',
+  'metric',
+  'periods',
+  'year',
+  'annualize',
+  'aggregate',
+  'exists',
+  'there',
+  'into',
+  'by',
+  'vs',
+  'given',
+  'using',
+  'estimated',
+  'against',
+  'maps',
+  'value',
+  'p',
 ]);
 
-function shouldWrapWord(word: string) {
-  const trimmed = word.replace(/[.,:;!?]+$/, '');
-  const trailing = word.slice(trimmed.length);
-  if (!trimmed) return { wrap: false, trailing };
-
-  if (MATH_IDENTIFIERS.has(trimmed)) return { wrap: false, trailing };
-  if (/^[A-Za-z]$/.test(trimmed)) return { wrap: false, trailing };
-  if (/^[A-Z]{2,4}$/.test(trimmed) && !ENGLISH_WORDS.has(trimmed.toLowerCase())) {
-    return { wrap: false, trailing };
-  }
-  if (ENGLISH_WORDS.has(trimmed.toLowerCase())) return { wrap: true, trailing };
-  if (trimmed.includes(' ')) return { wrap: true, trailing };
-  if (trimmed.length >= 5) return { wrap: true, trailing };
-
-  return { wrap: false, trailing };
+function isEnglishWord(word: string) {
+  return ENGLISH_WORDS.has(word.toLowerCase());
 }
 
-function readScriptTail(input: string, startIndex: number) {
-  if (startIndex >= input.length) return { token: '', nextIndex: startIndex };
-
-  if (input[startIndex] === '{') {
-    let depth = 1;
-    let j = startIndex + 1;
-    while (j < input.length && depth > 0) {
-      if (input[j] === '{') depth += 1;
-      if (input[j] === '}') depth -= 1;
-      j += 1;
-    }
-    return { token: input.slice(startIndex, j), nextIndex: j };
+function tryMatchMathToken(source: string, index: number): { token: string; len: number } | null {
+  if (source[index] === '\\') {
+    const match = source.slice(index).match(/^\\[a-zA-Z]+(\*\d?)?(\{[^{}]*\})*/);
+    if (match) return { token: match[0], len: match[0].length };
   }
 
-  if (input[startIndex] === '\\') {
-    const cmdMatch = input.slice(startIndex).match(/^\\[a-zA-Z]+(\*\d?)?(\{[^{}]*\})*/);
-    if (cmdMatch) {
-      return { token: cmdMatch[0], nextIndex: startIndex + cmdMatch[0].length };
+  if (/[μσθΘβερλωτΔΣ√∈≤≥≠∅∩∀∃…←↦⌊⌋]/.test(source[index])) {
+    return { token: source[index], len: 1 };
+  }
+
+  const scoreMatch = source.slice(index).match(/^Score(?:_\w+)?\([^)]*\)/);
+  if (scoreMatch) return { token: scoreMatch[0], len: scoreMatch[0].length };
+
+  for (const abbrev of MATH_ABBREVS) {
+    if (source.startsWith(abbrev, index)) {
+      const next = source[index + abbrev.length];
+      if (!next || !/[A-Za-z0-9_]/.test(next)) {
+        return { token: abbrev, len: abbrev.length };
+      }
     }
   }
 
-  return { token: input[startIndex] ?? '', nextIndex: startIndex + 1 };
+  const scriptMatch = source.slice(index).match(
+    /^[A-Za-z][A-Za-z0-9]*(?:_(?:\{[^{}]*\}|[A-Za-z0-9]+)|\^(?:\{[^{}]*\}|[A-Za-z0-9]+))+/,
+  );
+  if (scriptMatch) return { token: scriptMatch[0], len: scriptMatch[0].length };
+
+  const wordMatch = source.slice(index).match(/^[A-Za-z]+/);
+  if (wordMatch && !isEnglishWord(wordMatch[0])) {
+    const next = source[index + wordMatch[0].length];
+    if (!next || !/[A-Za-z0-9_]/.test(next)) {
+      return { token: wordMatch[0], len: wordMatch[0].length };
+    }
+  }
+
+  const single = source[index];
+  if (/[A-Za-z]/.test(single)) {
+    const next = source[index + 1];
+    if (!next || !/[A-Za-z0-9_]/.test(next)) {
+      if (!isEnglishWord(single)) return { token: single, len: 1 };
+    }
+  }
+
+  return null;
 }
 
-function wrapGlossaryProse(input: string) {
-  let out = '';
+type Segment = { type: 'text' | 'math'; content: string };
+
+function autoSegmentClause(clause: string): Segment[] {
+  const segments: Segment[] = [];
   let i = 0;
 
-  while (i < input.length) {
-    const ch = input[i];
-
-    if (ch === '\\') {
-      const cmdMatch = input.slice(i).match(/^\\[a-zA-Z]+(\*\d?)?(\{[^{}]*\})*/);
-      if (cmdMatch) {
-        out += cmdMatch[0];
-        i += cmdMatch[0].length;
-        continue;
-      }
-    }
-
-    if (ch === '{') {
-      let depth = 1;
-      let j = i + 1;
-      while (j < input.length && depth > 0) {
-        if (input[j] === '{') depth += 1;
-        if (input[j] === '}') depth -= 1;
-        j += 1;
-      }
-      out += input.slice(i, j);
-      i = j;
+  while (i < clause.length) {
+    const math = tryMatchMathToken(clause, i);
+    if (math) {
+      segments.push({ type: 'math', content: math.token });
+      i += math.len;
       continue;
     }
 
-    if (ch === '_' || ch === '^') {
-      out += ch;
-      i += 1;
-      const { token, nextIndex } = readScriptTail(input, i);
-      out += token;
-      i = nextIndex;
-      continue;
-    }
-
-    if (/[A-Za-z]/.test(ch)) {
-      let j = i;
-      while (j < input.length && /[A-Za-z0-9' \-]/.test(input[j])) j += 1;
-      const run = input.slice(i, j);
-      const trimmedRun = run.trim();
-      const leading = run.match(/^\s*/)?.[0] ?? '';
-      const trailingSpace = run.match(/\s*$/)?.[0] ?? '';
-      const { wrap, trailing } = shouldWrapWord(trimmedRun);
-
-      out += leading;
-      if (wrap) {
-        out += `\\text{${trimmedRun}${trailing}}`;
-      } else {
-        out += trimmedRun + trailing;
-      }
-      out += trailingSpace;
-      i = j;
-      continue;
-    }
-
-    out += ch;
-    i += 1;
+    let j = i + 1;
+    while (j < clause.length && !tryMatchMathToken(clause, j)) j += 1;
+    segments.push({ type: 'text', content: clause.slice(i, j) });
+    i = j;
   }
 
-  return out;
+  return segments.filter((s) => s.content.length > 0);
 }
 
-function renderLatex(latex: string, displayMode = true) {
-  const prepared = normalizeLatex(latex);
-  const hasProse = /\\text\{/.test(prepared);
+function splitDelimitedText(text: string) {
+  return text.split(/(\$[^$]+\$)/g).filter((part) => part.length > 0);
+}
 
-  return katex.renderToString(prepared, {
-    displayMode: displayMode && !hasProse,
+function renderKatexHtml(latex: string, displayMode: boolean) {
+  return katex.renderToString(normalizeMathSegment(latex), {
+    displayMode,
     throwOnError: false,
     strict: 'ignore',
     trust: false,
   });
 }
 
-function splitMixedText(text: string) {
-  return text.split(/(\$[^$]+\$)/g).filter((part) => part.length > 0);
+function isExplicitLatexClause(clause: string) {
+  return /\\(text|frac|hat|widehat|operatorname|sum|max|min|arg|mid|mathrm|mathbf|lfloor|rfloor)\b/.test(
+    clause,
+  );
 }
 
-export function MathMixed({ text }: { text: string }) {
-  const parts = splitMixedText(text);
+function looksLikeFormula(clause: string) {
+  return /[=^_$\\∑ΣβεμσθΘργΦ√Δλωτ]|\\frac|\\sum|\\max|\\min|\\arg|\\widehat|\\hat|\\bar|\\emptyset|\\cap|\\in|\\leq|\\geq|\\neq/.test(
+    clause,
+  );
+}
 
+function ClauseContent({ clause }: { clause: string }) {
+  if (clause.includes('$')) {
+    const parts = splitDelimitedText(clause);
+    return (
+      <span className="math-mixed">
+        {parts.map((part, index) => {
+          if (part.startsWith('$') && part.endsWith('$')) {
+            const latex = part.slice(1, -1);
+            return (
+              <span
+                key={`${index}-${latex}`}
+                className="math-inline"
+                dangerouslySetInnerHTML={{ __html: renderKatexHtml(latex, false) }}
+              />
+            );
+          }
+          return (
+            <span key={`${index}-${part}`} className="math-prose">
+              {part}
+            </span>
+          );
+        })}
+      </span>
+    );
+  }
+
+  if (isExplicitLatexClause(clause)) {
+    const hasProse = /\\text\{/.test(clause);
+    return (
+      <span
+        className="math-mixed"
+        dangerouslySetInnerHTML={{
+          __html: renderKatexHtml(clause, !hasProse),
+        }}
+      />
+    );
+  }
+
+  const segments = autoSegmentClause(clause);
   return (
     <span className="math-mixed">
-      {parts.map((part, index) => {
-        if (part.startsWith('$') && part.endsWith('$')) {
-          const latex = part.slice(1, -1);
+      {segments.map((seg, index) => {
+        if (seg.type === 'text') {
           return (
-            <span
-              key={`${index}-${latex}`}
-              className="math-inline"
-              dangerouslySetInnerHTML={{ __html: renderLatex(latex, false) }}
-            />
+            <span key={`${index}-t`} className="math-prose">
+              {seg.content}
+            </span>
           );
         }
         return (
-          <span key={`${index}-${part}`} className="math-prose">
-            {part}
-          </span>
+          <span
+            key={`${index}-m-${seg.content}`}
+            className="math-inline"
+            dangerouslySetInnerHTML={{ __html: renderKatexHtml(seg.content, false) }}
+          />
         );
       })}
     </span>
+  );
+}
+
+export function MathMixed({ text }: { text: string }) {
+  return <ClauseContent clause={text} />;
+}
+
+/** Prose footnote with inline $...$ math — use for descriptions, notes, and limits copy. */
+export function MathNote({ text, className = 'math-note' }: { text: string; className?: string }) {
+  return (
+    <p className={className}>
+      <MathMixed text={text} />
+    </p>
   );
 }
 
@@ -451,22 +486,15 @@ export function MathDisplay({ text, className = 'math-display' }: Props) {
           );
         }
 
-        const prepared = normalizeLatex(clause);
-        const hasProse = /\\text\{/.test(prepared);
+        const isProse =
+          clause.includes('$') ||
+          isExplicitLatexClause(clause) ||
+          autoSegmentClause(clause).some((s) => s.type === 'text');
 
         return (
-          <div
-            key={clause}
-            className={hasProse ? 'math-formula math-formula-prose' : 'math-formula'}
-            dangerouslySetInnerHTML={{
-              __html: katex.renderToString(prepared, {
-                displayMode: !hasProse,
-                throwOnError: false,
-                strict: 'ignore',
-                trust: false,
-              }),
-            }}
-          />
+          <div key={clause} className={isProse ? 'math-formula math-formula-prose' : 'math-formula'}>
+            <ClauseContent clause={clause} />
+          </div>
         );
       })}
     </div>
@@ -481,11 +509,7 @@ export function MathBlock({ lines, compact = false }: { lines: string[]; compact
           key={line}
           className={compact ? 'math-formula math-formula-compact' : 'math-formula'}
           dangerouslySetInnerHTML={{
-            __html: katex.renderToString(normalizeLatex(line), {
-              displayMode: true,
-              throwOnError: false,
-              strict: 'ignore',
-            }),
+            __html: renderKatexHtml(line, true),
           }}
         />
       ))}

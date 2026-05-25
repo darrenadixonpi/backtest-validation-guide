@@ -1,4 +1,4 @@
-import { MathBlock } from './MathDisplay';
+import { MathBlock, MathNote } from './MathDisplay';
 import {
   CV_BIAS,
   ESTIMAND_BLOCKS,
@@ -21,19 +21,19 @@ export function MathFramework() {
       <div className="math-blocks">
         <article className="math-block-highlight">
           <h3>{ESTIMAND_BLOCKS.fixedTheta.title}</h3>
-          <p className="math-note">{ESTIMAND_BLOCKS.fixedTheta.description}</p>
+          <MathNote text={ESTIMAND_BLOCKS.fixedTheta.description} />
           <MathBlock compact lines={ESTIMAND_BLOCKS.fixedTheta.latex} />
         </article>
 
         <article className="math-block-highlight">
           <h3>{ESTIMAND_BLOCKS.policy.title}</h3>
-          <p className="math-note">{ESTIMAND_BLOCKS.policy.description}</p>
+          <MathNote text={ESTIMAND_BLOCKS.policy.description} />
           <MathBlock compact lines={ESTIMAND_BLOCKS.policy.latex} />
         </article>
 
         <article>
           <h3>{ESTIMAND_BLOCKS.excessReturn.title}</h3>
-          <p className="math-note">{ESTIMAND_BLOCKS.excessReturn.description}</p>
+          <MathNote text={ESTIMAND_BLOCKS.excessReturn.description} />
           <MathBlock compact lines={ESTIMAND_BLOCKS.excessReturn.latex} />
         </article>
 
@@ -60,7 +60,7 @@ export function MathFramework() {
         <article>
           <h3>{PURGE_FORMAL.title}</h3>
           <MathBlock compact lines={PURGE_FORMAL.latex} />
-          <p className="math-note">{PURGE_FORMAL.note}</p>
+          <MathNote text={PURGE_FORMAL.note} />
         </article>
 
         <article>
@@ -72,7 +72,7 @@ export function MathFramework() {
               ...PREQUENTIAL.latex,
             ]}
           />
-          <p className="math-note">{PREQUENTIAL.note}</p>
+          <MathNote text={PREQUENTIAL.note} />
         </article>
 
         <article>
@@ -83,38 +83,38 @@ export function MathFramework() {
               '[\\widehat{SR}_{IS} - \\widehat{SR}_{OOS}] + [\\widehat{SR}_{OOS} - SR^*]',
             ]}
           />
-          <p className="math-note">Left: leakage / overfit / selection. Right: finite-sample estimation error.</p>
+          <MathNote text="Left: leakage / overfit / selection. Right: finite-sample estimation error." />
         </article>
 
         <article>
           <h3>{CV_BIAS.title}</h3>
           <MathBlock compact lines={CV_BIAS.latex} />
-          <p className="math-note">{CV_BIAS.note}</p>
+          <MathNote text={CV_BIAS.note} />
         </article>
 
         <article>
           <h3>{SHARPE_INFERENCE.lo.title}</h3>
           <MathBlock compact lines={SHARPE_INFERENCE.lo.latex} />
-          <p className="math-note">{SHARPE_INFERENCE.lo.note}</p>
+          <MathNote text={SHARPE_INFERENCE.lo.note} />
         </article>
 
         <article>
           <h3>{SHARPE_INFERENCE.nonNormal.title}</h3>
           <MathBlock compact lines={SHARPE_INFERENCE.nonNormal.latex} />
-          <p className="math-note">{SHARPE_INFERENCE.nonNormal.note}</p>
+          <MathNote text={SHARPE_INFERENCE.nonNormal.note} />
         </article>
 
         <article>
           <h3>{SHARPE_INFERENCE.dsr.title}</h3>
           <MathBlock compact lines={SHARPE_INFERENCE.dsr.latex} />
-          <p className="math-note">{SHARPE_INFERENCE.dsr.note}</p>
+          <MathNote text={SHARPE_INFERENCE.dsr.note} />
         </article>
 
         <article>
           <h3>Multiplicity (summary)</h3>
           <MathBlock compact
             lines={[
-              'PBO = \\frac{1}{|S|}\\sum_{s\\in S} \\mathbf{1}\\{\\text{rank}_{OOS}(\\text{IS-best}) > \\lfloor|\\Theta|/2\\rfloor\\}',
+              'PBO = \\frac{1}{|S|}\\sum_{s\\in S} \\mathbf{1}\\{\\operatorname{rank}_{\\mathrm{OOS}}(\\text{IS-best}) > \\lfloor |\\Theta|/2 \\rfloor\\}',
               'T_M = \\max_m \\sqrt{T}\\,\\bar{d}_m \\quad \\text{(Reality Check / SPA family)}',
             ]}
           />

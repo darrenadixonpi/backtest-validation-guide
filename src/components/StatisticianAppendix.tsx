@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MathBlock, MathMixed } from './MathDisplay';
+import { MathBlock, MathMixed, MathNote } from './MathDisplay';
 import {
   ASSUMPTIONS,
   HYPOTHESIS_TESTS,
@@ -139,8 +139,10 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
         <ul className="limits-list">
           {NOT_PROVE.map((item) => (
             <li key={item.claim}>
-              <strong>{item.claim}</strong>
-              <p>{item.why}</p>
+              <strong>
+                <MathMixed text={item.claim} />
+              </strong>
+              <MathNote text={item.why} />
             </li>
           ))}
         </ul>
@@ -158,7 +160,9 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
           <h3>Notes</h3>
           <ul>
             {PANEL_STATS.notes.map((n) => (
-              <li key={n}>{n}</li>
+              <li key={n}>
+                <MathNote text={n} className="math-note panel-stat-note" />
+              </li>
             ))}
           </ul>
           <div className="related">

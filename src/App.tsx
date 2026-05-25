@@ -5,13 +5,16 @@ import { MethodComparisonTable, MethodExplorer } from './components/MethodExplor
 import { ProtocolRecommender } from './components/ProtocolRecommender';
 import { ScenarioPlaybook } from './components/ScenarioPlaybook';
 import { StatisticianAppendix } from './components/StatisticianAppendix';
+import { ToolsGuide } from './components/ToolsGuide';
+import { FeedbackLink } from './components/FeedbackLink';
+import { SECTION_LABELS } from './utils/feedback';
 import { ValidationCharts } from './components/ValidationCharts';
 import { PIPELINE_ROWS } from './data/methods';
 import { TERMS } from './data/terms';
 import type { StrategyMode, WindowMode } from './components/ProtocolRecommender';
 import './App.css';
 
-type Section = 'overview' | 'playbook' | 'protocol' | 'methods' | 'glossary' | 'math' | 'statistics';
+type Section = 'overview' | 'playbook' | 'protocol' | 'methods' | 'glossary' | 'math' | 'statistics' | 'tools';
 
 export default function App() {
   const [section, setSection] = useState<Section>('overview');
@@ -77,6 +80,7 @@ export default function App() {
               ['glossary', 'Glossary'],
               ['math', 'Math framework'],
               ['statistics', 'Statistics'],
+              ['tools', 'Tools & stack'],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -89,6 +93,7 @@ export default function App() {
             </button>
           ))}
         </nav>
+        <FeedbackLink section={SECTION_LABELS[section]} detail={`Current tab: ${section}`} />
       </div>
 
       <main>
@@ -167,6 +172,8 @@ export default function App() {
         {section === 'math' && <MathFramework />}
 
         {section === 'statistics' && <StatisticianAppendix onSelectTerm={jumpToTerm} />}
+
+        {section === 'tools' && <ToolsGuide />}
       </main>
 
       <footer>

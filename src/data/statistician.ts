@@ -19,7 +19,7 @@ export const ESTIMAND_BLOCKS = {
   fixedTheta: {
     title: 'Fixed-parameter estimand',
     description:
-      'Performance of a strategy with θ frozen before evaluation. Valid only when θ was not selected using the same sample.',
+      'Performance of a strategy with $θ$ frozen before evaluation. Valid only when $θ$ was not selected using the same sample.',
     latex: [
       'SR^*(\\theta) = \\mu(\\theta) / \\sigma(\\theta), \\quad \\mu(\\theta)=\\mathbb{E}[s_t(\\theta)],\\; \\sigma^2(\\theta)=\\mathrm{Var}(s_t(\\theta))',
       '\\widehat{SR}(\\theta) = \\bar{s}(\\theta)/\\hat{\\sigma}(\\theta), \\quad \\bar{s}(\\theta)=\\frac{1}{T}\\sum_{t=1}^T s_t(\\theta)',
@@ -28,7 +28,7 @@ export const ESTIMAND_BLOCKS = {
   policy: {
     title: 'Policy / post-selection estimand (walk-forward, nested CV)',
     description:
-      'What you actually deploy: a rule that refits and selects θ over time. This is the primary estimand for systematic trading validation.',
+      'What you actually deploy: a rule that refits and selects $θ$ over time. This is the primary estimand for systematic trading validation.',
     latex: [
       '\\hat{\\theta}_k = \\arg\\max_{\\theta\\in\\Theta} Score(\\theta; T_k)',
       '\\mathcal{R}_{OOS} = \\frac{1}{|V|}\\sum_{k}\\sum_{t\\in V_k} s_t(\\hat{\\theta}_k)',
@@ -37,7 +37,7 @@ export const ESTIMAND_BLOCKS = {
   },
   excessReturn: {
     title: 'Excess return convention',
-    description: 'State explicitly whether returns are excess over a risk-free rate r_f or absolute.',
+    description: 'State explicitly whether returns are excess over a risk-free rate $r_f$ or absolute.',
     latex: [
       's_t^{ex} = s_t - r_f \\quad \\text{(per period)}',
       'SR_{ex} = \\mathbb{E}[s_t^{ex}]/\\sigma(s_t^{ex})',
@@ -52,14 +52,14 @@ export const SHARPE_INFERENCE = {
       'T^* = T \\cdot \\frac{1-\\rho_1}{1+\\rho_1} \\quad \\text{(first-order approximation; extend with higher lags for precision)}',
       'SE(\\widehat{SR}) \\approx \\sqrt{\\frac{1 + 0.5\\,\\widehat{SR}^2}{T^*}}',
     ],
-    note: 'Positive autocorrelation inflates apparent precision. Use block bootstrap or Lo-adjusted SE before claiming significance.',
+    note: 'Positive autocorrelation inflates apparent precision. Use block bootstrap or Lo-adjusted $SE$ before claiming significance.',
   },
   nonNormal: {
     title: 'Non-normality (skew & kurtosis)',
     latex: [
       'SE(\\widehat{SR}) \\approx \\sqrt{\\frac{1 - \\gamma_3\\widehat{SR} + \\frac{\\gamma_4-1}{4}\\widehat{SR}^2}{T-1}}',
     ],
-    note: 'γ₃ = skewness, γ₄ = kurtosis of strategy returns. Fat tails and negative skew widen uncertainty.',
+    note: '$γ_3$ = skewness, $γ_4$ = kurtosis of strategy returns. Fat tails and negative skew widen uncertainty.',
   },
   dsr: {
     title: 'Deflated Sharpe Ratio (Bailey & Lopez de Prado) — full form',
@@ -68,7 +68,7 @@ export const SHARPE_INFERENCE = {
       'V(\\widehat{SR}) = \\frac{1}{T-1}\\left(1 - \\gamma_3\\widehat{SR} + \\frac{\\gamma_4-1}{4}\\widehat{SR}^2\\right)',
       'DSR = \\Phi\\left(\\frac{\\widehat{SR}-SR_0}{\\sqrt{V(\\widehat{SR})}}\\cdot\\sqrt{T-1}\\right)',
     ],
-    note: 'γ = Euler–Mascheroni constant. Document M (number of trials) honestly — includes informal tweaks.',
+    note: '$γ$ = Euler–Mascheroni constant. Document $M$ (number of trials) honestly — includes informal tweaks.',
   },
 };
 
@@ -79,7 +79,7 @@ export const PURGE_FORMAL = {
     'T_k^{purged} = \\{ t \\in T : [t-P_k,\\, t+P_k] \\cap V_k = \\emptyset \\}',
     'T_k^{embargo} = T_k^{purged} \\setminus \\{ t : a_k-E \\le t \\le b_k+E \\}',
   ],
-  note: 'V_k = [a_k, b_k] is test fold. Embargo E attenuates autocorrelation leakage beyond label overlap.',
+  note: '$V_k = [a_k, b_k]$ is test fold. Embargo $E$ attenuates autocorrelation leakage beyond label overlap.',
 };
 
 export const HYPOTHESIS_TESTS: HypothesisTest[] = [
@@ -118,24 +118,24 @@ export const HYPOTHESIS_TESTS: HypothesisTest[] = [
     nullHypothesis: 'Same as Reality Check: no superior predictive ability vs benchmark.',
     statistic: '$\\max_m \\sqrt{T}\\,(\\bar{d}_m - \\bar{d}_m^+)$',
     bootstrapOrNull: 'Recentered stationary bootstrap — improved power vs RC when many models are inferior.',
-    rejectionMeans: 'Evidence that some strategy beats benchmark; still does not guarantee OOS live P&L.',
+    rejectionMeans: 'Evidence that some strategy beats benchmark; still does not guarantee $OOS$ live P&L.',
     relatedTermId: 'spa',
   },
   {
     method: 'Deflated Sharpe Ratio (DSR)',
     nullHypothesis: '$H_0$: true $SR \\leq 0$ after adjusting for $M$ trials, skew, kurtosis, and sample length.',
     statistic: '$DSR = \\Phi(z_{\\text{deflated}})$ as in Bailey–LdP',
-    bootstrapOrNull: 'Analytic null based on expected max SR under multiple testing — not a resampling test.',
+    bootstrapOrNull: 'Analytic null based on expected max $SR$ under multiple testing — not a resampling test.',
     rejectionMeans:
-      'Observed SR exceeds what multiple uninformed trials would plausibly produce — still not causal proof.',
+      'Observed $SR$ exceeds what multiple uninformed trials would plausibly produce — still not causal proof.',
     relatedTermId: 'dsr',
   },
   {
     method: 'PBO (via CPCV)',
     nullHypothesis:
-      '$H_0$: IS-optimal parameter set is no better than median OOS among candidates (overfit).',
+      '$H_0$: IS-optimal parameter set is no better than median $OOS$ among candidates (overfit).',
     statistic:
-      '$PBO = \\text{fraction of CPCV paths where } \\mathrm{rank}_{OOS}(\\text{IS-best}) > \\lfloor |\\Theta|/2 \\rfloor$',
+      '$PBO = \\frac{1}{|S|} \\sum_{s \\in S} \\mathbf{1}\\{\\mathrm{rank}_{\\mathrm{OOS}}(\\text{IS-best}) > \\lfloor |\\Theta|/2 \\rfloor\\}$',
     bootstrapOrNull: 'Combinatorial purged splits — empirical over split ensemble, not i.i.d. bootstrap.',
     rejectionMeans: 'High PBO $\\rightarrow$ IS winner likely overfit; low PBO supports robustness but does not prove alpha.',
     relatedTermId: 'pbo',
@@ -143,9 +143,9 @@ export const HYPOTHESIS_TESTS: HypothesisTest[] = [
   {
     method: 'Walk-forward OOS',
     nullHypothesis: 'Not a single hypothesis test — prequential evaluation of a refitting policy.',
-    statistic: '$R_{OOS}$, $SR_{OOS}$ on concatenated OOS periods',
-    bootstrapOrNull: 'Block bootstrap on OOS returns for CI; does not include selection uncertainty unless nested.',
-    rejectionMeans: 'Positive OOS under honest splits supports generalization; path-dependent and one historical draw.',
+    statistic: '$R_{\\mathrm{OOS}}$, $SR_{\\mathrm{OOS}}$ on concatenated $OOS$ periods',
+    bootstrapOrNull: 'Block bootstrap on $OOS$ returns for CI; does not include selection uncertainty unless nested.',
+    rejectionMeans: 'Positive $OOS$ under honest splits supports generalization; path-dependent and one historical draw.',
     relatedTermId: 'walk-forward',
   },
 ];
@@ -178,7 +178,7 @@ export const ASSUMPTIONS: AssumptionItem[] = [
     id: 'stationarity-window',
     category: 'DGP',
     assumption: 'Data-generating process stable enough within each evaluation window — or use rolling WFA.',
-    whyItMatters: 'Structural breaks make pooled OOS a mixture of incompatible regimes.',
+    whyItMatters: 'Structural breaks make pooled $OOS$ a mixture of incompatible regimes.',
     howToCheck: 'Regime splits; CUSUM/changepoint on mean/vol of $s_t$.',
   },
   {
@@ -206,7 +206,7 @@ export const ASSUMPTIONS: AssumptionItem[] = [
     id: 'nested-tuning',
     category: 'Selection',
     assumption: 'Hyperparameters tuned only on outer-train data when $|\\Theta| > 1$.',
-    whyItMatters: 'Flat tuning on full history contaminates reported OOS.',
+    whyItMatters: 'Flat tuning on full history contaminates reported $OOS$.',
     howToCheck: 'Code review: inner loop never sees outer-test indices.',
   },
   {
@@ -214,7 +214,7 @@ export const ASSUMPTIONS: AssumptionItem[] = [
     category: 'Selection',
     assumption:
       'Bootstrap CIs distinguish conditional (fixed $\\hat{\\theta}$) vs unconditional (policy) inference.',
-    whyItMatters: 'Bootstrap on OOS after selection underestimates uncertainty without nested resampling.',
+    whyItMatters: 'Bootstrap on $OOS$ after selection underestimates uncertainty without nested resampling.',
     howToCheck: 'State whether CI is for $\\hat{\\theta}$ fixed or for full selection pipeline.',
   },
   {
@@ -235,32 +235,32 @@ export const ASSUMPTIONS: AssumptionItem[] = [
 
 export const NOT_PROVE = [
   {
-    claim: 'Positive OOS Sharpe guarantees future profitability.',
-    why: 'OOS is one historical path; regimes change; microstructure differs in live trading.',
+    claim: 'Positive $OOS$ Sharpe guarantees future profitability.',
+    why: '$OOS$ is one historical path; regimes change; microstructure differs in live trading.',
   },
   {
-    claim: 'Passing DSR/SPA/PBO proves alpha is “real” causally.',
+    claim: 'Passing $DSR$/$SPA$/$PBO$ proves alpha is “real” causally.',
     why: 'Tests adjust for search and dependence under stated nulls — they do not establish economic mechanism or stationarity forever.',
   },
   {
-    claim: 'Block bootstrap CI on OOS includes parameter-selection uncertainty.',
-    why: 'Standard bootstrap is conditional on θ̂ unless nested inside the resampling loop.',
+    claim: 'Block bootstrap CI on $OOS$ includes parameter-selection uncertainty.',
+    why: 'Standard bootstrap is conditional on $\\hat{θ}$ unless nested inside the resampling loop.',
   },
   {
     claim: 'Purged CV makes folds independent.',
-    why: 'CPCV paths overlap; split ensembles are dependent — report distributions, not i.i.d. averages without care.',
+    why: '$CPCV$ paths overlap; split ensembles are dependent — report distributions, not i.i.d. averages without care.',
   },
   {
-    claim: 'High in-sample fit with “good” OOS once proves the model is correct.',
+    claim: 'High in-sample fit with “good” $OOS$ once proves the model is correct.',
     why: 'Single holdout has high variance; Simpson/regime effects can hide failure modes.',
   },
   {
-    claim: 'Kaggle/competition leaderboard score equals deployable OOS.',
+    claim: 'Kaggle/competition leaderboard score equals deployable $OOS$.',
     why: 'Competition metrics often omit costs, realistic execution, and researcher degrees of freedom off-platform.',
   },
   {
     claim: 'Stationarity assumed because the backtest is long.',
-    why: 'Long samples can mix multiple regimes; ergodicity is an assumption, not a gift of T.',
+    why: 'Long samples can mix multiple regimes; ergodicity is an assumption, not a gift of $T$.',
   },
 ];
 
@@ -298,7 +298,7 @@ export const PANEL_STATS = {
   ],
   notes: [
     'Intraday single-asset WFA differs from panel factor research — do not reuse row-wise K-fold habits.',
-    'Monte Carlo in factor work often simulates factor returns F_t, not i.i.d. row shuffles of r_{i,t}.',
+    'Monte Carlo in factor work often simulates factor returns $F_t$, not i.i.d. row shuffles of $r_{i,t}$.',
   ],
 };
 
@@ -317,7 +317,7 @@ export const CV_BIAS = {
     '\\mathbb{E}[\\widehat{Err}_{CV}] \\approx Err + \\text{optimism bias}',
     '\\text{Nested CV reduces tuning contamination; purging removes leakage bias}',
   ],
-  note: 'Even correct CV estimates expected error, not with zero variance — report fold distribution (CPCV).',
+  note: 'Even correct CV estimates expected error, not with zero variance — report fold distribution ($CPCV$).',
 };
 
 export const REFERENCES_EXTENDED = [

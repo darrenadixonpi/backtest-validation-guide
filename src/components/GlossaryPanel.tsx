@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Level, Term } from '../data/types';
 import { CATEGORIES } from '../data/types';
 import { TERMS, termById } from '../data/terms';
 import { MathDisplay } from './MathDisplay';
+import { FeedbackLink } from './FeedbackLink';
 
 const LEVELS: Level[] = ['beginner', 'professional', 'math'];
 
@@ -42,6 +43,16 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }
 
   const active = termById(selectedTermId) ?? TERMS[0];
   const badgeLevel = displayLevel(active, level);
+  const detailRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const activeBtn = document.querySelector('.term-list .term-btn.active');
+    activeBtn?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [selectedTermId]);
 
   const byCategory = CATEGORIES.map((cat) => ({
     cat,
@@ -102,11 +113,18 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }
           ))}
         </div>
 
-        <article className="term-detail">
+        <article className="term-detail" ref={detailRef}>
           <header>
             <h3>{active.name}</h3>
             <span className="badge">{badgeLevel}</span>
           </header>
+          <FeedbackLink
+            section="Glossary"
+            termName={active.name}
+            termId={active.id}
+            detail={`Detail level: ${level}`}
+            label="Suggest a glossary edit"
+          />
           {active.aliases && active.aliases.length > 0 && (
             <p className="aliases">Also called: {active.aliases.join(', ')}</p>
           )}
