@@ -11,6 +11,10 @@ npm run dev
 
 Open the URL shown in the terminal (typically `http://localhost:5173`).
 
+## Live site
+
+[https://backtest-validation-guide.vercel.app/](https://backtest-validation-guide.vercel.app/)
+
 ## What's inside
 
 - **51 glossary terms** — each with beginner, professional, and math-level definitions
@@ -18,10 +22,6 @@ Open the URL shown in the terminal (typically `http://localhost:5173`).
 - **Protocol builder** — strategy type, expanding vs rolling WFA, trials, label horizon
 - **Charts** — illustrative IS vs OOS teaching examples
 - **Math framework** — condensed notation reference
-
-## Cursor Canvas
-
-A companion canvas lives in the Cursor workspace at `canvases/backtest-validation-guide.canvas.tsx` for side-by-side use in the IDE.
 
 ## References
 
