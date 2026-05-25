@@ -25,7 +25,7 @@ function fixGluedLatexCommands(input: string) {
     .replace(/\\leq(?=[A-Za-z0-9|])/g, '\\leq ')
     .replace(/\\geq(?=[A-Za-z0-9|])/g, '\\geq ')
     .replace(/\\neq(?=[A-Za-z0-9|])/g, '\\neq ')
-    .replace(/\\in(?=[A-Za-z0-9|{])/g, '\\in ')
+    .replace(/\\in(?!fty)(?=[A-Za-z0-9|{])/g, '\\in ')
     .replace(/\\forall(?=[A-Za-z0-9|])/g, '\\forall ')
     .replace(/\\sqrt([A-Za-z0-9_])/g, '\\sqrt{$1}')
     .replace(/\\Delta(?=[A-Za-z_])/g, '\\Delta ')
@@ -96,28 +96,7 @@ export function normalizeMathSegment(latex: string) {
   return s;
 }
 
-const MATH_ABBREVS = [
-  'Score_inner',
-  'Score',
-  'SR',
-  'OOS',
-  'IS',
-  'ORB',
-  'WFA',
-  'DSR',
-  'PBO',
-  'SPA',
-  'FWER',
-  'FDR',
-  'HAC',
-  'MBB',
-  'CBB',
-  'Corr',
-  'Cov',
-  'Var',
-  'Sign',
-  'Err',
-];
+const MATH_ABBREVS = ['Score_inner', 'Score', 'Corr', 'Cov', 'Var', 'Sign', 'Err'];
 
 const ENGLISH_WORDS = new Set([
   'features',
@@ -293,6 +272,24 @@ const ENGLISH_WORDS = new Set([
   'maps',
   'value',
   'p',
+  'oos',
+  'sr',
+  'dsr',
+  'pbo',
+  'spa',
+  'wfa',
+  'orb',
+  'fwer',
+  'fdr',
+  'cpcv',
+  'rc',
+  'mbb',
+  'cbb',
+  'hac',
+  'ci',
+  'nw',
+  'ldp',
+  'is-best',
 ]);
 
 function isEnglishWord(word: string) {

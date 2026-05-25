@@ -88,7 +88,7 @@ export const HYPOTHESIS_TESTS: HypothesisTest[] = [
     nullHypothesis:
       'Strategy returns are exchangeable with a null that destroys signal (e.g. sign-flip or circular shift).',
     statistic: '$SR_{\\text{obs}}$ or cumulative return',
-    bootstrapOrNull: 'Empirical null from $B$ randomized series; no parametric bootstrap required.',
+    bootstrapOrNull: 'Empirical null from B randomized series; no parametric bootstrap required.',
     rejectionMeans:
       'Observed performance is unlikely under the chosen null randomization — not proof of future edge.',
     relatedTermId: 'permutation-test',
@@ -100,7 +100,7 @@ export const HYPOTHESIS_TESTS: HypothesisTest[] = [
     statistic: '$\\widehat{SR}$, mean return, max drawdown, etc.',
     bootstrapOrNull: 'Resample blocks of $\\{s_t\\}$; valid if $L\\to\\infty$ and $L/T\\to 0$.',
     rejectionMeans:
-      'CI excludes zero $\\rightarrow$ performance estimate statistically distinguishable from 0 given dependence model — conditional on fixed $\\theta$.',
+      'CI excludes zero → performance estimate statistically distinguishable from 0 given dependence model — conditional on fixed $\\theta$.',
     relatedTermId: 'block-bootstrap',
   },
   {
@@ -118,34 +118,34 @@ export const HYPOTHESIS_TESTS: HypothesisTest[] = [
     nullHypothesis: 'Same as Reality Check: no superior predictive ability vs benchmark.',
     statistic: '$\\max_m \\sqrt{T}\\,(\\bar{d}_m - \\bar{d}_m^+)$',
     bootstrapOrNull: 'Recentered stationary bootstrap — improved power vs RC when many models are inferior.',
-    rejectionMeans: 'Evidence that some strategy beats benchmark; still does not guarantee $OOS$ live P&L.',
+    rejectionMeans: 'Evidence that some strategy beats benchmark; still does not guarantee OOS live P&L.',
     relatedTermId: 'spa',
   },
   {
     method: 'Deflated Sharpe Ratio (DSR)',
     nullHypothesis: '$H_0$: true $SR \\leq 0$ after adjusting for $M$ trials, skew, kurtosis, and sample length.',
     statistic: '$DSR = \\Phi(z_{\\text{deflated}})$ as in Bailey–LdP',
-    bootstrapOrNull: 'Analytic null based on expected max $SR$ under multiple testing — not a resampling test.',
+    bootstrapOrNull: 'Analytic null based on expected max SR under multiple testing — not a resampling test.',
     rejectionMeans:
-      'Observed $SR$ exceeds what multiple uninformed trials would plausibly produce — still not causal proof.',
+      'Observed SR exceeds what multiple uninformed trials would plausibly produce — still not causal proof.',
     relatedTermId: 'dsr',
   },
   {
     method: 'PBO (via CPCV)',
     nullHypothesis:
-      '$H_0$: IS-optimal parameter set is no better than median $OOS$ among candidates (overfit).',
+      '$H_0$: IS-optimal parameter set is no better than median OOS among candidates (overfit).',
     statistic:
       '$PBO = \\frac{1}{|S|} \\sum_{s \\in S} \\mathbf{1}\\{\\mathrm{rank}_{\\mathrm{OOS}}(\\text{IS-best}) > \\lfloor |\\Theta|/2 \\rfloor\\}$',
     bootstrapOrNull: 'Combinatorial purged splits — empirical over split ensemble, not i.i.d. bootstrap.',
-    rejectionMeans: 'High PBO $\\rightarrow$ IS winner likely overfit; low PBO supports robustness but does not prove alpha.',
+    rejectionMeans: 'High PBO → IS winner likely overfit; low PBO supports robustness but does not prove alpha.',
     relatedTermId: 'pbo',
   },
   {
     method: 'Walk-forward OOS',
     nullHypothesis: 'Not a single hypothesis test — prequential evaluation of a refitting policy.',
-    statistic: '$R_{\\mathrm{OOS}}$, $SR_{\\mathrm{OOS}}$ on concatenated $OOS$ periods',
-    bootstrapOrNull: 'Block bootstrap on $OOS$ returns for CI; does not include selection uncertainty unless nested.',
-    rejectionMeans: 'Positive $OOS$ under honest splits supports generalization; path-dependent and one historical draw.',
+    statistic: '$R_{\\mathrm{OOS}}$, $SR_{\\mathrm{OOS}}$ on concatenated OOS periods',
+    bootstrapOrNull: 'Block bootstrap on OOS returns for CI; does not include selection uncertainty unless nested.',
+    rejectionMeans: 'Positive OOS under honest splits supports generalization; path-dependent and one historical draw.',
     relatedTermId: 'walk-forward',
   },
 ];
@@ -178,7 +178,7 @@ export const ASSUMPTIONS: AssumptionItem[] = [
     id: 'stationarity-window',
     category: 'DGP',
     assumption: 'Data-generating process stable enough within each evaluation window — or use rolling WFA.',
-    whyItMatters: 'Structural breaks make pooled $OOS$ a mixture of incompatible regimes.',
+    whyItMatters: 'Structural breaks make pooled OOS a mixture of incompatible regimes.',
     howToCheck: 'Regime splits; CUSUM/changepoint on mean/vol of $s_t$.',
   },
   {
@@ -206,7 +206,7 @@ export const ASSUMPTIONS: AssumptionItem[] = [
     id: 'nested-tuning',
     category: 'Selection',
     assumption: 'Hyperparameters tuned only on outer-train data when $|\\Theta| > 1$.',
-    whyItMatters: 'Flat tuning on full history contaminates reported $OOS$.',
+    whyItMatters: 'Flat tuning on full history contaminates reported OOS.',
     howToCheck: 'Code review: inner loop never sees outer-test indices.',
   },
   {
@@ -214,7 +214,7 @@ export const ASSUMPTIONS: AssumptionItem[] = [
     category: 'Selection',
     assumption:
       'Bootstrap CIs distinguish conditional (fixed $\\hat{\\theta}$) vs unconditional (policy) inference.',
-    whyItMatters: 'Bootstrap on $OOS$ after selection underestimates uncertainty without nested resampling.',
+    whyItMatters: 'Bootstrap on OOS after selection underestimates uncertainty without nested resampling.',
     howToCheck: 'State whether CI is for $\\hat{\\theta}$ fixed or for full selection pipeline.',
   },
   {
@@ -235,32 +235,32 @@ export const ASSUMPTIONS: AssumptionItem[] = [
 
 export const NOT_PROVE = [
   {
-    claim: 'Positive $OOS$ Sharpe guarantees future profitability.',
-    why: '$OOS$ is one historical path; regimes change; microstructure differs in live trading.',
+    claim: 'Positive OOS Sharpe guarantees future profitability.',
+    why: 'OOS is one historical path; regimes change; microstructure differs in live trading.',
   },
   {
-    claim: 'Passing $DSR$/$SPA$/$PBO$ proves alpha is “real” causally.',
+    claim: 'Passing DSR/SPA/PBO proves alpha is “real” causally.',
     why: 'Tests adjust for search and dependence under stated nulls — they do not establish economic mechanism or stationarity forever.',
   },
   {
-    claim: 'Block bootstrap CI on $OOS$ includes parameter-selection uncertainty.',
+    claim: 'Block bootstrap CI on OOS includes parameter-selection uncertainty.',
     why: 'Standard bootstrap is conditional on $\\hat{θ}$ unless nested inside the resampling loop.',
   },
   {
     claim: 'Purged CV makes folds independent.',
-    why: '$CPCV$ paths overlap; split ensembles are dependent — report distributions, not i.i.d. averages without care.',
+    why: 'CPCV paths overlap; split ensembles are dependent — report distributions, not i.i.d. averages without care.',
   },
   {
-    claim: 'High in-sample fit with “good” $OOS$ once proves the model is correct.',
+    claim: 'High in-sample fit with “good” OOS once proves the model is correct.',
     why: 'Single holdout has high variance; Simpson/regime effects can hide failure modes.',
   },
   {
-    claim: 'Kaggle/competition leaderboard score equals deployable $OOS$.',
+    claim: 'Kaggle/competition leaderboard score equals deployable OOS.',
     why: 'Competition metrics often omit costs, realistic execution, and researcher degrees of freedom off-platform.',
   },
   {
     claim: 'Stationarity assumed because the backtest is long.',
-    why: 'Long samples can mix multiple regimes; ergodicity is an assumption, not a gift of $T$.',
+    why: 'Long samples can mix multiple regimes; ergodicity is an assumption, not a gift of T.',
   },
 ];
 
