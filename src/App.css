@@ -480,6 +480,41 @@ figcaption {
   font-size: 0.9rem;
 }
 
+.chart-tooltip {
+  background: #171a21;
+  border: 1px solid #3a4150;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  min-width: 160px;
+}
+
+.chart-tooltip-label {
+  margin: 0 0 8px;
+  color: #e8eaed;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.chart-tooltip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chart-tooltip li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.chart-tooltip li span:last-child {
+  font-variant-numeric: tabular-nums;
+  color: #e8eaed;
+}
+
 .math-blocks {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
