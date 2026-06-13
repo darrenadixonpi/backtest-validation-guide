@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTabList } from '../hooks/useTabList';
 import { MathBlock, MathMixed, MathNote } from './MathDisplay';
 import {
   ASSUMPTIONS,
@@ -16,9 +17,11 @@ type Props = {
 };
 
 type SubSection = 'hypotheses' | 'assumptions' | 'limits' | 'panel';
+const SUB_TABS: readonly SubSection[] = ['hypotheses', 'assumptions', 'limits', 'panel'];
 
 export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props) {
   const [sub, setSub] = useState<SubSection>('hypotheses');
+  const { listRef, getTabProps, getPanelProps } = useTabList(SUB_TABS, sub, setSub);
 
   const assumptionGroups = useMemo(() => {
     const groups = new Map<string, typeof ASSUMPTIONS>();
@@ -42,7 +45,7 @@ export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props
         </p>
       </div>
 
-      <div className="sub-tabs" role="tablist" aria-label="Statistics sections">
+      <div className="sub-tabs" role="tablist" aria-label="Statistics sections" ref={listRef}>
         {(
           [
             ['hypotheses', 'Hypothesis tests'],
@@ -54,10 +57,9 @@ export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props
           <button
             key={id}
             type="button"
-            role="tab"
-            aria-selected={sub === id}
             className={sub === id ? 'sub-tab active' : 'sub-tab'}
             onClick={() => setSub(id)}
+            {...getTabProps(id)}
           >
             {label}
           </button>
@@ -65,42 +67,44 @@ export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props
       </div>
 
       {sub === 'hypotheses' && (
-        <div className="table-wrap">
-          <table className="stats-table">
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>Null hypothesis <MathMixed text="$H_0$" /></th>
-                <th>Test statistic</th>
-                <th>Bootstrap / null mechanism</th>
-                <th>If rejected / significant, means…</th>
-              </tr>
-            </thead>
-            <tbody>
-              {HYPOTHESIS_TESTS.map((row) => (
-                <tr key={row.method}>
-                  <td>
-                    {row.relatedTermId ? (
-                      <button type="button" className="linkish" onClick={() => onSelectTerm(row.relatedTermId!)}>
-                        {row.method}
-                      </button>
-                    ) : (
-                      row.method
-                    )}
-                  </td>
-                  <td><MathMixed text={row.nullHypothesis} /></td>
-                  <td><MathMixed text={row.statistic} /></td>
-                  <td><MathMixed text={row.bootstrapOrNull} /></td>
-                  <td><MathMixed text={row.rejectionMeans} /></td>
+        <div {...getPanelProps('hypotheses')}>
+          <div className="table-wrap">
+            <table className="stats-table">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Null hypothesis <MathMixed text="$H_0$" /></th>
+                  <th>Test statistic</th>
+                  <th>Bootstrap / null mechanism</th>
+                  <th>If rejected / significant, means…</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {HYPOTHESIS_TESTS.map((row) => (
+                  <tr key={row.method}>
+                    <td>
+                      {row.relatedTermId ? (
+                        <button type="button" className="linkish" onClick={() => onSelectTerm(row.relatedTermId!)}>
+                          {row.method}
+                        </button>
+                      ) : (
+                        row.method
+                      )}
+                    </td>
+                    <td><MathMixed text={row.nullHypothesis} /></td>
+                    <td><MathMixed text={row.statistic} /></td>
+                    <td><MathMixed text={row.bootstrapOrNull} /></td>
+                    <td><MathMixed text={row.rejectionMeans} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {sub === 'assumptions' && (
-        <>
+        <div {...getPanelProps('assumptions')}>
           <p className="assumption-progress">
             Documented checks: <strong>{checkedCount}</strong> / {ASSUMPTIONS.length}
           </p>
@@ -133,24 +137,26 @@ export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props
               </ul>
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {sub === 'limits' && (
-        <ul className="limits-list">
-          {NOT_PROVE.map((item) => (
-            <li key={item.claim}>
-              <strong>
-                <MathMixed text={item.claim} />
-              </strong>
-              <MathNote text={item.why} />
-            </li>
-          ))}
-        </ul>
+        <div {...getPanelProps('limits')}>
+          <ul className="limits-list">
+            {NOT_PROVE.map((item) => (
+              <li key={item.claim}>
+                <strong>
+                  <MathMixed text={item.claim} />
+                </strong>
+                <MathNote text={item.why} />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {sub === 'panel' && (
-        <div className="panel-stats">
+        <div {...getPanelProps('panel')} className="panel-stats">
           <p className="muted">{PANEL_STATS.title}</p>
           {PANEL_STATS.blocks.map((b) => (
             <article key={b.heading} className="panel-stat-block">

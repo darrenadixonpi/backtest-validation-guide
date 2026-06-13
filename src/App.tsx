@@ -1,20 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
-import { GlossaryPanel } from './components/GlossaryPanel';
-import { MathFramework } from './components/MathFramework';
-import { MethodComparisonTable, MethodExplorer } from './components/MethodExplorer';
-import { ProtocolRecommender } from './components/ProtocolRecommender';
-import { ScenarioPlaybook } from './components/ScenarioPlaybook';
-import { StatisticianAppendix } from './components/StatisticianAppendix';
-import { ToolsGuide } from './components/ToolsGuide';
-import { FeedbackLink } from './components/FeedbackLink';
-import { SECTION_LABELS } from './utils/feedback';
-import { ValidationCharts } from './components/ValidationCharts';
-import { PIPELINE_ROWS } from './data/methods';
-import { TERMS } from './data/terms';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import type { StrategyMode, WindowMode } from './components/ProtocolRecommender';
 import type { Level } from './data/types';
+import { GlossaryPanel } from './components/GlossaryPanel';
+import { ProtocolRecommender } from './components/ProtocolRecommender';
+import { ScenarioPlaybook } from './components/ScenarioPlaybook';
+import { FeedbackLink } from './components/FeedbackLink';
+import { SECTION_LABELS } from './utils/feedback';
+import { PIPELINE_ROWS } from './data/methods';
+import { TERMS } from './data/terms';
 import { parseHash, pushHash, type Section } from './utils/hash';
 import './App.css';
+
+const MathFramework = lazy(() => import('./components/MathFramework').then((m) => ({ default: m.MathFramework })));
+const MethodComparisonTable = lazy(() => import('./components/MethodExplorer').then((m) => ({ default: m.MethodComparisonTable })));
+const MethodExplorer = lazy(() => import('./components/MethodExplorer').then((m) => ({ default: m.MethodExplorer })));
+const StatisticianAppendix = lazy(() => import('./components/StatisticianAppendix').then((m) => ({ default: m.StatisticianAppendix })));
+const ToolsGuide = lazy(() => import('./components/ToolsGuide').then((m) => ({ default: m.ToolsGuide })));
+const ValidationCharts = lazy(() => import('./components/ValidationCharts').then((m) => ({ default: m.ValidationCharts })));
 
 export default function App() {
   const initial = parseHash(window.location.hash);
@@ -116,6 +118,7 @@ export default function App() {
               key={id}
               type="button"
               className={section === id ? 'tab active' : 'tab'}
+              aria-current={section === id ? 'page' : undefined}
               onClick={() => navigate(id)}
             >
               {label}
@@ -126,97 +129,99 @@ export default function App() {
       </div>
 
       <main>
-        {section === 'overview' && (
-          <>
-            <section className="panel callout">
-              <h2>Quick answer: is walk-forward enough without forward testing?</h2>
-              <p>
-                For reasonable OOS metrics before live trading — yes, if splits are chronological,
-                costs are conservative, and you control parameter search. Forward/paper trading
-                still validates microstructure (fills, latency) that bar backtests cannot.
-                Indicator-only intraday rules with expanding walk-forward fit the lighter protocol;
-                add purged nested CV when ML models or large parameter grids enter the pipeline.
-              </p>
-              <p className="muted">
-                For model-review rigor, use the Statistics tab: hypothesis table, assumptions
-                checklist, and limits of inference.
-              </p>
-            </section>
+        <Suspense fallback={<div className="loading">Loading…</div>}>
+          {section === 'overview' && (
+            <>
+              <section className="panel callout">
+                <h2>Quick answer: is walk-forward enough without forward testing?</h2>
+                <p>
+                  For reasonable OOS metrics before live trading — yes, if splits are chronological,
+                  costs are conservative, and you control parameter search. Forward/paper trading
+                  still validates microstructure (fills, latency) that bar backtests cannot.
+                  Indicator-only intraday rules with expanding walk-forward fit the lighter protocol;
+                  add purged nested CV when ML models or large parameter grids enter the pipeline.
+                </p>
+                <p className="muted">
+                  For model-review rigor, use the Statistics tab: hypothesis table, assumptions
+                  checklist, and limits of inference.
+                </p>
+              </section>
 
-            <ProtocolRecommender {...protocolProps} />
-            <ScenarioPlaybook onSelectTerm={jumpToTerm} />
-            <ValidationCharts />
+              <ProtocolRecommender {...protocolProps} />
+              <ScenarioPlaybook onSelectTerm={jumpToTerm} />
+              <ValidationCharts />
 
-            <section className="panel">
-              <div className="panel-head">
-                <h2>Validation pipeline</h2>
-              </div>
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Step</th>
-                      <th>Role</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {PIPELINE_ROWS.map(([step, role]) => (
-                      <tr key={step}>
-                        <td>{step}</td>
-                        <td>{role}</td>
+              <section className="panel">
+                <div className="panel-head">
+                  <h2>Validation pipeline</h2>
+                </div>
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Step</th>
+                        <th>Role</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </>
-        )}
+                    </thead>
+                    <tbody>
+                      {PIPELINE_ROWS.map(([step, role]) => (
+                        <tr key={step}>
+                          <td>{step}</td>
+                          <td>{role}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </>
+          )}
 
-        {section === 'playbook' && <ScenarioPlaybook onSelectTerm={jumpToTerm} />}
+          {section === 'playbook' && <ScenarioPlaybook onSelectTerm={jumpToTerm} />}
 
-        {section === 'protocol' && <ProtocolRecommender {...protocolProps} />}
+          {section === 'protocol' && <ProtocolRecommender {...protocolProps} />}
 
-        {section === 'methods' && (
-          <>
-            <MethodComparisonTable />
-            <MethodExplorer
-              selectedMethodId={selectedMethod}
-              onSelectMethod={setSelectedMethod}
+          {section === 'methods' && (
+            <>
+              <MethodComparisonTable />
+              <MethodExplorer
+                selectedMethodId={selectedMethod}
+                onSelectMethod={setSelectedMethod}
+                onSelectTerm={jumpToTerm}
+              />
+              <ValidationCharts />
+            </>
+          )}
+
+          {section === 'glossary' && (
+            <GlossaryPanel
+              search={search}
+              onSearch={setSearch}
+              selectedTermId={selectedTerm}
               onSelectTerm={jumpToTerm}
+              level={glossaryLevel}
+              onLevel={setGlossaryLevel}
             />
-            <ValidationCharts />
-          </>
-        )}
+          )}
 
-        {section === 'glossary' && (
-          <GlossaryPanel
-            search={search}
-            onSearch={setSearch}
-            selectedTermId={selectedTerm}
-            onSelectTerm={jumpToTerm}
-            level={glossaryLevel}
-            onLevel={setGlossaryLevel}
-          />
-        )}
+          {section === 'math' && <MathFramework />}
 
-        {section === 'math' && <MathFramework />}
+          {section === 'statistics' && (
+            <StatisticianAppendix
+              onSelectTerm={jumpToTerm}
+              checked={checked}
+              onChecked={setChecked}
+            />
+          )}
 
-        {section === 'statistics' && (
-          <StatisticianAppendix
-            onSelectTerm={jumpToTerm}
-            checked={checked}
-            onChecked={setChecked}
-          />
-        )}
-
-        {section === 'tools' && <ToolsGuide />}
+          {section === 'tools' && <ToolsGuide />}
+        </Suspense>
       </main>
 
       <footer>
         <p>
-          References: Lopez de Prado; Bailey et al.; White; Hansen; Politis & Romano; Lo (2002);
-          Fama–MacBeth; Newey–West.
+          References: Lopez de Prado; Bailey et al.; White; Hansen; Politis &amp; Romano; Lo (2002);
+          th; Newey–West.
         </p>
       </footer>
     </div>

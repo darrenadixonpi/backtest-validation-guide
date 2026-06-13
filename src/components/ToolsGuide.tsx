@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTabList } from '../hooks/useTabList';
 import {
   LANGUAGE_GUIDES,
   STEP_GUIDES,
@@ -10,6 +11,7 @@ import {
 import { SCENARIOS } from '../data/scenarios';
 
 type SubSection = 'steps' | 'catalog' | 'languages' | 'use-cases';
+const SUB_TABS: readonly SubSection[] = ['steps', 'catalog', 'languages', 'use-cases'];
 
 function licenseBadge(license: ToolLicense) {
   const labels: Record<ToolLicense, string> = {
@@ -24,6 +26,7 @@ export function ToolsGuide() {
   const [sub, setSub] = useState<SubSection>('steps');
   const [stepFilter, setStepFilter] = useState<string>('all');
   const [licenseFilter, setLicenseFilter] = useState<'all' | ToolLicense>('all');
+  const { listRef, getTabProps, getPanelProps } = useTabList(SUB_TABS, sub, setSub);
 
   const filteredTools = useMemo(() => {
     return TOOLS.filter((t) => {
@@ -50,7 +53,7 @@ export function ToolsGuide() {
         ))}
       </ul>
 
-      <div className="sub-tabs" role="tablist" aria-label="Tools sections">
+      <div className="sub-tabs" role="tablist" aria-label="Tools sections" ref={listRef}>
         {(
           [
             ['steps', 'By validation step'],
@@ -62,10 +65,9 @@ export function ToolsGuide() {
           <button
             key={id}
             type="button"
-            role="tab"
-            aria-selected={sub === id}
             className={sub === id ? 'sub-tab active' : 'sub-tab'}
             onClick={() => setSub(id)}
+            {...getTabProps(id)}
           >
             {label}
           </button>
@@ -73,7 +75,7 @@ export function ToolsGuide() {
       </div>
 
       {sub === 'steps' && (
-        <div className="step-tools-grid">
+        <div {...getPanelProps('steps')} className="step-tools-grid">
           {STEP_GUIDES.map((s) => (
             <article key={s.id} className="step-tool-card">
               <header>
@@ -111,7 +113,7 @@ export function ToolsGuide() {
       )}
 
       {sub === 'catalog' && (
-        <>
+        <div {...getPanelProps('catalog')}>
           <div className="tool-filters">
             <label>
               Validation step
@@ -172,11 +174,11 @@ export function ToolsGuide() {
               </article>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {sub === 'languages' && (
-        <div className="language-grid">
+        <div {...getPanelProps('languages')} className="language-grid">
           {LANGUAGE_GUIDES.map((lang) => (
             <article key={lang.id} className="language-card">
               <h3>{lang.language}</h3>
@@ -217,7 +219,7 @@ export function ToolsGuide() {
       )}
 
       {sub === 'use-cases' && (
-        <div className="use-case-stack-grid">
+        <div {...getPanelProps('use-cases')} className="use-case-stack-grid">
           {USE_CASE_STACKS.map((uc) => {
             const scenario = uc.scenarioId ? SCENARIOS.find((s) => s.id === uc.scenarioId) : undefined;
             return (

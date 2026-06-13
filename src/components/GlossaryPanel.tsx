@@ -35,6 +35,14 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm, 
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set([categoryForTerm(selectedTermId)]),
   );
+  // Derived-state pattern: sync open category when selectedTermId changes
+  // (setState during render is React-supported for getDerivedStateFromProps equivalents)
+  const [prevTermId, setPrevTermId] = useState(selectedTermId);
+  if (prevTermId !== selectedTermId) {
+    setPrevTermId(selectedTermId);
+    setOpenCategories(new Set([categoryForTerm(selectedTermId)]));
+  }
+
   const q = search.trim().toLowerCase();
 
   const filtered = useMemo(() => {
@@ -52,13 +60,10 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm, 
   const active = termById(selectedTermId) ?? TERMS[0];
   const badgeLevel = displayLevel(active, level);
   const detailRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setOpenCategories(new Set([categoryForTerm(selectedTermId)]));
-  }, [selectedTermId]);
-
-  useEffect(() => {
-    const activeBtn = document.querySelector('.term-list .term-btn.active');
+    const activeBtn = listRef.current?.querySelector('.term-btn.active');
     activeBtn?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 
     if (window.matchMedia('(max-width: 900px)').matches) {
@@ -102,7 +107,7 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm, 
       />
 
       <div className="glossary-grid">
-        <div className="term-list">
+        <div className="term-list" ref={listRef}>
           {byCategory.map(({ cat, items }) => (
             <details key={cat} open={!!q || openCategories.has(cat)}>
               <summary
