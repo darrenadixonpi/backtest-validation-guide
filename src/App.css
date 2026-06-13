@@ -1302,3 +1302,96 @@ footer {
 footer p {
   margin: 0;
 }
+
+/* ── Global Search ─────────────────────────────────── */
+.search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #3a4150;
+  background: transparent;
+  color: #aeb4bf;
+  font-size: 0.88rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.search-trigger:hover { border-color: #4a7cbf; color: #e8eaed; background: #1a1f28; }
+.search-trigger kbd {
+  font-size: 0.75rem;
+  padding: 1px 4px;
+  border: 1px solid #3a4150;
+  border-radius: 3px;
+  background: #1a1f28;
+}
+.search-icon { font-size: 1rem; }
+.search-hint { display: none; }
+@media (min-width: 640px) { .search-hint { display: inline; } }
+
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+}
+.search-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+.search-modal {
+  position: relative;
+  width: min(600px, 90vw);
+  background: #1a1f28;
+  border: 1px solid #3a4150;
+  border-radius: 10px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.search-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #3a4150;
+  color: #e8eaed;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.search-input::placeholder { color: #5a6270; }
+.search-results {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.search-group { padding: 0; }
+.search-group-label {
+  display: block;
+  padding: 6px 14px 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5a6270;
+}
+.search-group ul { list-style: none; margin: 0; padding: 0; }
+.search-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.search-item.active { background: #243040; }
+.search-item-label { color: #e8eaed; font-size: 0.92rem; }
+.search-item-sub { color: #5a6270; font-size: 0.8rem; flex-shrink: 0; }
+.search-empty { padding: 16px 14px; color: #5a6270; font-size: 0.9rem; }
+.search-prompt { padding: 14px 16px; color: #5a6270; font-size: 0.88rem; margin: 0; }

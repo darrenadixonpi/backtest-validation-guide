@@ -5,6 +5,7 @@ import { GlossaryPanel } from './components/GlossaryPanel';
 import { ProtocolRecommender } from './components/ProtocolRecommender';
 import { ScenarioPlaybook } from './components/ScenarioPlaybook';
 import { FeedbackLink } from './components/FeedbackLink';
+import { GlobalSearch } from './components/GlobalSearch';
 import { SECTION_LABELS } from './utils/feedback';
 import { PIPELINE_ROWS } from './data/methods';
 import { TERMS } from './data/terms';
@@ -61,6 +62,12 @@ export default function App() {
 
   const navigate = useCallback((s: Section) => {
     setSection(s);
+  }, []);
+
+  const handleSearchNavigate = useCallback((s: Section, detail?: string) => {
+    setSection(s);
+    if (s === 'glossary' && detail) setSelectedTerm(detail);
+    if (s === 'methods' && detail) setSelectedMethod(detail);
   }, []);
 
   const protocolProps = {
@@ -125,6 +132,7 @@ export default function App() {
             </button>
           ))}
         </nav>
+        <GlobalSearch onNavigate={handleSearchNavigate} />
         <FeedbackLink section={SECTION_LABELS[section]} detail={`Current tab: ${section}`} />
       </div>
 
