@@ -91,4 +91,19 @@ Living plan for content and product work. Code on `main` is the source of truth 
 ## Explicit non-goals
 
 - Live backtesting or data connectors
--
+- Broker / vendor integrations
+- User accounts or saved protocol state
+- Claiming certification or regulatory sign-off
+- Replacing primary sources (Lopez de Prado, Bailey, etc.) — we link and summarize
+
+---
+
+## How to suggest work
+
+Use **Suggest an edit** in the app (opens a GitHub issue with section context) or open an issue on the repo directly. For content changes, prefer editing `src/data/*` and following [docs/CONTENT.md](./docs/CONTENT.md).
+
+---
+
+## Related project
+
+**[AI Stack Map](https://github.com/darrenadixonpi/AI-stack-map)** — separate product (AI tooling landscape). UX inspired by this guide; validation content stays here.

@@ -79,4 +79,4 @@ Static SPA — deploy the `dist/` folder to Vercel or any static host (current p
 
 ## Related project
 
-**[AI Stack Map](https://github.com/darrenadixonpi/AI-stack-map)** — practitioner map of the AI tooling ecosystem (layers, agents, harnesses). UX inspire
+**[AI Stack Map](https://github.com/darrenadixonpi/AI-stack-map)** — practitioner map of the AI tooling ecosystem (layers, agents, harnesses). UX inspired by this guide; separate codebase and content.
