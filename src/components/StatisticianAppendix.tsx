@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { PrintChecklistButton } from './PrintChecklist';
 import { useTabList } from '../hooks/useTabList';
 import { MathBlock, MathMixed, MathNote } from './MathDisplay';
 import {
@@ -105,9 +106,10 @@ export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props
 
       {sub === 'assumptions' && (
         <div {...getPanelProps('assumptions')}>
-          <p className="assumption-progress">
-            Documented checks: <strong>{checkedCount}</strong> / {ASSUMPTIONS.length}
-          </p>
+          <div className="assumption-progress">
+            <span>Documented checks: <strong>{checkedCount}</strong> / {ASSUMPTIONS.length}</span>
+            <PrintChecklistButton checked={checked} />
+          </div>
           {assumptionGroups.map(([category, items]) => (
             <div key={category} className="assumption-group">
               <h3>{category}</h3>

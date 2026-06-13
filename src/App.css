@@ -1395,3 +1395,23 @@ footer p {
 .search-item-sub { color: #5a6270; font-size: 0.8rem; flex-shrink: 0; }
 .search-empty { padding: 16px 14px; color: #5a6270; font-size: 0.9rem; }
 .search-prompt { padding: 14px 16px; color: #5a6270; font-size: 0.88rem; margin: 0; }
+
+/* ── Print checklist ───────────────────────────────── */
+.assumption-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.print-checklist-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #3a4150;
+  background: transparent;
+  color: #aeb4bf;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.print-checklist-btn:hover { border-color: #4a7cbf; color: #e8eaed; background: #1a1f28; }
