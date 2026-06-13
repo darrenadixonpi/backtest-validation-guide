@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { StatisticsIsland } from '../islands/StatisticsIsland';
+---
+
+<Base
+  section="statistics"
+  title="Statistics Appendix"
+  description="Hypothesis testing, assumptions checklist, limits of inference, and the statistician's annotated reference for backtesting validation."
+>
+  <StatisticsIsland client:load />
+</Base>

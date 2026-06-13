@@ -1,0 +1,108 @@
+---
+import { TERMS } from '../data/terms';
+import { SECTION_LABELS } from '../utils/feedback';
+import type { Section } from '../utils/hash';
+import { GlobalSearch } from '../components/GlobalSearch';
+import { FeedbackLink } from '../components/FeedbackLink';
+import '../App.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  section: Section;
+  /** og:image override */
+  ogImage?: string;
+}
+
+const {
+  title = 'Backtest Validation Guide',
+  description = 'Interactive reference for financial time-series backtesting validation: walk-forward analysis, purged CV, block bootstrap, DSR, PBO, and multiplicity corrections.',
+  section,
+  ogImage = 'https://backtest-validation-guide.vercel.app/og-card.png',
+} = Astro.props;
+
+const fullTitle = title === 'Backtest Validation Guide' ? title : `${title} — Backtest Validation Guide`;
+
+const NAV: [Section, string][] = [
+  ['overview',   'Overview'],
+  ['playbook',   'Use cases'],
+  ['protocol',   'Protocol builder'],
+  ['methods',    'Methods'],
+  ['glossary',   'Glossary'],
+  ['math',       'Math framework'],
+  ['statistics', 'Statistics'],
+  ['tools',      'Tools & stack'],
+];
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <meta name="theme-color" content="#0d1117" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={`https://backtest-validation-guide.vercel.app${Astro.url.pathname}`} />
+  <meta property="og:image" content={ogImage} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Interactive reference</p>
+        <h1>Financial Time-Series Validation Guide</h1>
+        <p class="lede">
+          Backtesting validation from practitioner workflows through formal statistical inference:
+          walk-forward analysis, purged CV, block bootstrap, multiplicity corrections, estimands,
+          and explicit hypothesis statements.
+        </p>
+      </div>
+      <div class="stats">
+        <div>
+          <strong>{TERMS.length}</strong>
+          <span>terms</span>
+        </div>
+        <div>
+          <strong>8</strong>
+          <span>methodologies</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <nav class="tabs" aria-label="Sections">
+        {NAV.map(([id, label]) => (
+          <a
+            href={id === 'overview' ? '/' : `/${id}/`}
+            class={section === id ? 'tab active' : 'tab'}
+            aria-current={section === id ? 'page' : undefined}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+      <GlobalSearch client:load />
+      <FeedbackLink client:load section={SECTION_LABELS[section]} detail={`Current section: ${section}`} />
+    </div>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer>
+      <p>
+        References: Lopez de Prado; Bailey et al.; White; Hansen; Politis &amp; Romano; Lo (2002);
+        Ith; Newey–West.
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

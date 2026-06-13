@@ -1,0 +1,1 @@
+import{j as r}from"./vendor-react.Dyd0XSxC.js";import{S as n}from"./ScenarioPlaybook.CsBTr9PZ.js";function e(){return r.jsx(n,{onSelectTerm:o=>{window.location.href=`/glossary/${o}/`}})}export{e as PlaybookIsland};

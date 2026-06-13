@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { ProtocolIsland } from '../islands/ProtocolIsland';
+---
+
+<Base
+  section="protocol"
+  title="Protocol Builder"
+  description="Interactive decision tree for choosing the right backtesting validation protocol based on your strategy type, sample size, and research stage."
+>
+  <ProtocolIsland client:load />
+</Base>

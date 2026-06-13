@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GlossaryIsland } from '../../islands/GlossaryIsland';
+---
+
+<Base
+  section="glossary"
+  title="Glossary"
+  description="67 terms covering backtesting, walk-forward analysis, Deflated Sharpe Ratio, overfitting, purged cross-validation, and more."
+>
+  <GlossaryIsland client:load />
+</Base>

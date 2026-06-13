@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GlossaryIsland } from '../../islands/GlossaryIsland';
+import { TERMS } from '../../data/terms';
+
+export function getStaticPaths() {
+  return TERMS.map((t) => ({
+    params: { id: t.id },
+    props: { term: t },
+  }));
+}
+
+const { term } = Astro.props;
+---
+
+<Base
+  section="glossary"
+  title={term.name}
+  description={term.beginner}
+>
+  <!--
+    Astro pre-renders GlossaryIsland at build time — crawlers see full term HTML.
+    React hydrates on load for interactive browsing.
+  -->
+  <GlossaryIsland client:load initialTermId={term.id} />
+</Base>

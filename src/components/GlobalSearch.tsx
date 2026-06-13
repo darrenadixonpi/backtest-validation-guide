@@ -70,10 +70,15 @@ function search(q: string): SearchResult[] {
 }
 
 type Props = {
-  onNavigate: (section: Section, detail?: string) => void;
+  onNavigate?: (section: Section, detail?: string) => void;
 };
 
-export function GlobalSearch({ onNavigate }: Props) {
+function defaultNavigate(s: Section, detail?: string) {
+  const url = detail ? `/${s}/${detail}/` : s === 'overview' ? '/' : `/${s}/`;
+  window.location.href = url;
+}
+
+export function GlobalSearch({ onNavigate = defaultNavigate }: Props) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);

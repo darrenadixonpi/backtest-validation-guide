@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { PlaybookIsland } from '../islands/PlaybookIsland';
+---
+
+<Base
+  section="playbook"
+  title="Use Cases"
+  description="Common validation paths by research stage — indicator rules, parameter grids, ML pipelines, and cross-sectional work."
+>
+  <PlaybookIsland client:load />
+</Base>

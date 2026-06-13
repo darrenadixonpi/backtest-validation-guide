@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import { MethodsIsland } from '../../islands/MethodsIsland';
+import { METHODS } from '../../data/methods';
+
+export function getStaticPaths() {
+  return METHODS.map((m) => ({
+    params: { id: m.id },
+    props: { method: m },
+  }));
+}
+
+const { method } = Astro.props;
+---
+
+<Base
+  section="methods"
+  title={method.name}
+  description={`${method.name}: ${method.whenToUse}`}
+>
+  <!--
+    Astro pre-renders MethodsIsland at build time — crawlers see full method HTML.
+    React hydrates on load for interactive exploration.
+  -->
+  <MethodsIsland client:load initialMethodId={method.id} />
+</Base>
