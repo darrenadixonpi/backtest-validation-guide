@@ -33,7 +33,7 @@ npm run preview  # preview dist/
 | **Use cases** | Scenario playbooks with glossary links |
 | **Protocol builder** | Interactive recommendation (strategy type, window, trials, horizon, refit) |
 | **Methods** | Eight validation methodologies, comparison table, explorer, charts |
-| **Glossary** | 60 terms × beginner / professional / math; searchable; category accordion |
+| **Glossary** | 67 terms × beginner / professional / math; searchable; category accordion |
 | **Math framework** | Estimands, purge rules, Sharpe inference, bias decomposition |
 | **Statistics** | Hypothesis tests, assumptions checklist, limits of inference, panel methods |
 | **Tools & stack** | OSS-first tooling by validation step, catalog, languages, use-case stacks |

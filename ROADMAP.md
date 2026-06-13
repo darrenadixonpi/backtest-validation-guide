@@ -17,7 +17,7 @@ Living plan for content and product work. Code on `main` is the source of truth 
 
 ### Content & UX
 
-- [x] **60 glossary terms** — beginner / professional / math detail levels; category accordion (one section open per selection)
+- [x] **67 glossary terms** — beginner / professional / math detail levels; category accordion (one section open per selection)
 - [x] **Protocol builder** — strategy type, window mode, trials, label horizon, refit; segmented controls
 - [x] **Methods explorer** — 8 methodologies, comparison table, charts
 - [x] **Use-case playbooks** — scenario cards with glossary links
@@ -27,6 +27,12 @@ Living plan for content and product work. Code on `main` is the source of truth 
 - [x] **KaTeX rendering** — `$...$` delimiter model, `MathNote` / `MathMixed` / `MathBlock` / `MathDisplay` (see [docs/CONTENT.md](./docs/CONTENT.md))
 - [x] **Glossary navigation** — links from Statistics, Methods, playbooks expand target category and collapse others
 - [x] **Feedback (Phase 1)** — “Suggest an edit” pre-filled GitHub Issue links (`src/utils/feedback.ts`, toolbar + per-term glossary link)
+- [x] **Hash deep linking** — `#section/detail` URLs; back/forward button support; shareable links to terms and methods
+- [x] **ARIA tablist keyboard nav** — `useTabList` hook; arrow keys, Home/End across Statistics and Tools sub-tabs
+- [x] **Code splitting** — `React.lazy` per tab; `manualChunks` for KaTeX, Recharts, React vendor bundles
+- [x] **ESLint** — typescript-eslint + react-hooks; 0 errors; wired to `npm run lint`
+- [x] **GitHub Actions CI** — tsc + lint + build on every push/PR to main (`./github/workflows/ci.yml`)
+- [x] **Meta / Open Graph tags** — description, og:title/description/image, twitter:card in `index.html`
 
 ### Data files (edit content here)
 
@@ -85,19 +91,4 @@ Living plan for content and product work. Code on `main` is the source of truth 
 ## Explicit non-goals
 
 - Live backtesting or data connectors
-- Broker / vendor integrations
-- User accounts or saved protocol state
-- Claiming certification or regulatory sign-off
-- Replacing primary sources (Lopez de Prado, Bailey, etc.) — we link and summarize
-
----
-
-## How to suggest work
-
-Use **Suggest an edit** in the app (opens a GitHub issue with section context) or open an issue on the repo directly. For content changes, prefer editing `src/data/*` and following [docs/CONTENT.md](./docs/CONTENT.md).
-
----
-
-## Related project
-
-**[AI Stack Map](https://github.com/darrenadixonpi/AI-stack-map)** — separate product (AI tooling landscape). UX inspired by this guide; validation content stays here.
+-

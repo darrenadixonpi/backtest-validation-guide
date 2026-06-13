@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "check:data": "node scripts/check-data.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

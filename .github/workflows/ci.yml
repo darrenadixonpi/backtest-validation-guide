@@ -27,5 +27,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Data integrity
+        run: npm run check:data
+
       - name: Build
         run: npm run build
