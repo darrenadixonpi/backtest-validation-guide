@@ -1,12 +1,14 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://backtest-validation-guide.vercel.app',
   output: 'static',
   adapter: vercel(),
-  integrations: [react()],
+  integrations: [react(), sitemap()],
 
   // Code-split vendor chunks (mirrors old vite.config.ts manualChunks)
   vite: {

@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  section="overview"
+  title="Page not found"
+  description="The page you were looking for doesn't exist."
+>
+  <section class="panel callout" style="text-align: center; padding: 48px 32px;">
+    <p class="eyebrow">404</p>
+    <h2 style="font-size: 1.5rem; margin: 0 0 12px;">Page not found</h2>
+    <p class="muted" style="margin-bottom: 28px;">
+      That URL doesn't exist. The term or method you're looking for may have moved.
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="/" class="tab active" style="text-decoration: none;">← Overview</a>
+      <a href="/glossary/" class="tab" style="text-decoration: none;">Glossary</a>
+      <a href="/methods/" class="tab" style="text-decoration: none;">Methods</a>
+    </div>
+  </section>
+</Base>
