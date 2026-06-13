@@ -9,7 +9,7 @@ export const METHODS: Method[] = [
     leakageControl: 'None',
     handlesManyParams: 'No',
     outputType: 'Scalar (optimistic)',
-    assumptions: 'None for validity',
+    assumptions: 'No conditions under which it is valid as OOS evidence.',
     pros: ['Fast', 'Simple'],
     cons: ['Severe overfit bias', 'Not defensible as OOS'],
     whenToUse: 'Exploratory debugging only — never as final evidence.',

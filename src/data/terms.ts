@@ -57,7 +57,7 @@ export const TERMS: Term[] = [
     professional:
       'Mean excess return divided by volatility — useful for comparing strategies at similar frequency and leverage, but fragile under non-normal returns, autocorrelation, and regime change. When you have run many trials, raw Sharpe overstates significance; use deflated Sharpe or SPA/Reality Check. Report alongside turnover, max drawdown, and OOS path.',
     math: '$SR = μ/σ$; sample $\\widehat{SR} = \\bar{s}/\\hat{σ}$; annualize with $√A$ for $A$ periods per year.',
-    related: ['dsr', 'returns', 'volatility'],
+    related: ['dsr', 'returns', 'volatility', 'max-drawdown'],
   },
   {
     id: 'returns',
@@ -111,7 +111,7 @@ export const TERMS: Term[] = [
     professional:
       'Any violation of the causal information flow: training uses data that would not have been available at decision time, or overlaps statistically with the test period. Common sources include overlapping labels, revised fundamentals, survivorship-biased universes, and peeking at test folds during tuning. Leakage makes OOS metrics meaningless even when code “looks” correct.',
     math: 'Leak if $∃$ information in train at $t$ that is not in $σ$-algebra $F_τ$ for test time $τ ≤ t+H$.',
-    related: ['label-leakage', 'feature-leakage', 'purged-cv', 'embargo'],
+    related: ['label-leakage', 'feature-leakage', 'purged-cv', 'embargo', 'survivorship-bias'],
   },
   {
     id: 'label-leakage',
@@ -144,7 +144,7 @@ export const TERMS: Term[] = [
     professional:
       'The forward window used to define a supervised target — e.g. H-day forward return or H-bar triple-barrier exit. Sets the minimum purge distance between training labels and test folds. Underestimating H is a frequent silent bug in financial ML pipelines.',
     math: 'Purge training index $t$ when $[t, t+H] ∩ V_{\\mathrm{test}} ≠ ∅$.',
-    related: ['label-leakage', 'purged-cv', 'embargo'],
+    related: ['label-leakage', 'purged-cv', 'embargo', 'triple-barrier'],
   },
   {
     id: 'autocorrelation',
@@ -305,7 +305,7 @@ export const TERMS: Term[] = [
     professional:
       'Bailey & Lopez de Prado adjustment asking whether observed Sharpe exceeds what you would expect from the best of M random trials under null, accounting for skew and kurtosis. Report alongside trial count M and sample length. A high raw Sharpe with low DSR is a red flag for data snooping.',
     math: '$DSR = \\Phi(z_{\\text{deflated}})$; $z$ uses $\\widehat{SR}$, $M$, $T$, $\\gamma_3$, $\\gamma_4$ vs $E[\\max \\widehat{SR}_m \\mid H_0]$.',
-    related: ['sharpe-ratio', 'selection-bias', 'pbo'],
+    related: ['sharpe-ratio', 'selection-bias', 'pbo', 'data-snooping', 'min-btl'],
   },
   {
     id: 'pbo',
@@ -385,7 +385,7 @@ export const TERMS: Term[] = [
     professional:
       'Implementation shortfall between decision price and fill price — dominates backtest vs live gap for intraday, large orders, and illiquid names. Model as function of participation rate and volatility; validate in forward testing. Bar-close backtests often assume unrealistic zero slippage.',
     math: '$p_{\\text{fill}} - p_{\\text{decision}} = \\mathrm{Slippage}_t$; $c_t$ includes $\\mathrm{slippage}_t \\cdot |\\Delta w_t|$.',
-    related: ['transaction-costs', 'forward-testing'],
+    related: ['transaction-costs', 'forward-testing', 'turnover'],
   },
   {
     id: 'point-in-time',
@@ -395,7 +395,7 @@ export const TERMS: Term[] = [
     professional:
       'Datasets with explicit as-of timestamps so each feature reflects what was knowable at decision time — critical for fundamentals, index membership, and analyst estimates. Using “current” fundamental databases backtests with lookahead. Survivorship-free universes are a related requirement.',
     math: 'Feature $X_t$ must use data with release time $τ ≤ t$; forbid revised values with $τ′ > t$.',
-    related: ['feature-leakage', 'backtesting', 'lookahead-bias'],
+    related: ['feature-leakage', 'backtesting', 'lookahead-bias', 'survivorship-bias'],
   },
   {
     id: 'position',
@@ -637,6 +637,88 @@ export const TERMS: Term[] = [
       'Cross-sectional factor and portfolio regressions require cluster-robust SEs (by date) or two-way clustering (date × firm). Fama–MacBeth runs cross-sections per t then time-series inference on coefficients with Newey–West. Never shuffle panel rows for CV.',
     math: '$SE_{\\mathrm{cluster-date}}$ allows arbitrary corr within $t$. NW SE on $\\{\\hat{\\gamma}_t\\}$ for Fama--MacBeth.',
     related: ['factor-model', 'purged-cv', 'monte-carlo-simulation'],
+  },
+  {
+    id: 'survivorship-bias',
+    name: 'Survivorship Bias',
+    aliases: ['survivor bias'],
+    category: 'Leakage & Dependence',
+    beginner:
+      'Using only assets that survived to today means your backtest misses all the ones that blew up — making history look rosier than it was.',
+    professional:
+      'Any dataset that conditions on an entity existing at the end of the sample period introduces survivorship bias. Point-in-time databases (Norgate, CRSP delist returns) remove it. Always verify: does your universe include delisted tickers, closed funds, or failed firms for the period in which they existed?',
+    math: 'Let $\\Omega$ be the full universe, $S \\subset \\Omega$ survivors. $E[R \\mid S] \\geq E[R]$ in general; the gap is the survivorship premium — not alpha.',
+    related: ['leakage', 'point-in-time', 'selection-bias', 'lookahead-bias'],
+  },
+  {
+    id: 'max-drawdown',
+    name: 'Maximum Drawdown',
+    aliases: ['MDD', 'max DD'],
+    category: 'Diagnostics',
+    beginner:
+      'The largest peak-to-trough loss in your equity curve — the worst-case loss an investor would have experienced.',
+    professional:
+      'MDD = max over [0,T] of (peak − trough). Complements Sharpe ratio because it captures path risk, not just return variance. Use block bootstrap to build a distribution of MDD under the null; a single-path MDD is not a reliable estimate of future drawdown. Calmar ratio (annualized return / MDD) is a common risk-adjusted metric.',
+    math: '$MDD = \\max_{0 \\leq s \\leq t \\leq T}(V_s - V_t)$; Calmar $= \\bar{r} / MDD$.',
+    related: ['sharpe-ratio', 'block-bootstrap', 'stress-test', 'volatility'],
+  },
+  {
+    id: 'turnover',
+    name: 'Turnover',
+    category: 'Live Trading',
+    beginner:
+      'How often your portfolio trades — high turnover means more transaction costs eating into returns.',
+    professional:
+      'Annualized turnover = sum of absolute position changes / 2 / AUM. Directly multiplies into transaction cost drag. A strategy that looks good gross may be unprofitable net once bid-ask spread, market impact, and borrow costs are applied. Always report net-of-cost Sharpe alongside gross, and show turnover so readers can judge at their own cost structure.',
+    math: '$\\tau = \\frac{1}{2T}\\sum_{t=1}^T \\|w_t - w_{t-1}^+\\|_1$; net $\\mathrm{SR} \\approx \\mathrm{SR}_{\\text{gross}} - c \\cdot \\tau / \\sigma$.',
+    related: ['transaction-costs', 'slippage', 'sharpe-ratio', 'position'],
+  },
+  {
+    id: 'triple-barrier',
+    name: 'Triple-Barrier Labeling',
+    aliases: ['triple barrier method'],
+    category: 'Strategy & Data',
+    beginner:
+      'Label each trade outcome by whichever of three events happens first: take-profit hit, stop-loss hit, or time limit reached.',
+    professional:
+      'López de Prado (2018): for each observation t, define upper barrier (profit target), lower barrier (stop), and vertical barrier (max horizon H). The label is +1, −1, or 0 based on first touch. Avoids fixed-horizon labeling bias; expresses dynamic exits naturally. Requires careful embargo on purged CV because label duration varies.',
+    math: 'Label $y_t = \\mathrm{sign}(r_{\\tau^*})$ where $\\tau^* = \\arg\\min_{\\tau \\in [t, t+H]} \\{|r_{t,\\tau}| \\geq \\delta\\}$ or $\\tau^* = t+H$.',
+    related: ['horizon-h', 'label-leakage', 'purged-cv', 'embargo', 'financial-ml'],
+  },
+  {
+    id: 'meta-labeling',
+    name: 'Meta-Labeling',
+    category: 'Strategy & Data',
+    beginner:
+      'Train a second model that decides whether to take or skip a signal from your primary strategy — filters false positives without redesigning the main model.',
+    professional:
+      'López de Prado (2018): given a primary model that generates binary signals, meta-labeling trains a classifier on features to predict P(signal is correct). Output is a bet-size ∈ [0,1] applied multiplicatively to the primary signal. Improves precision at the cost of recall. Requires separate purged CV for the meta-model; the primary model must not be retrained on meta-label feedback to avoid circularity.',
+    math: '$\\hat{y}^{\\text{meta}} = f(X_t) \\in [0,1]$; final position $= \\hat{y}^{\\text{primary}} \\cdot \\hat{y}^{\\text{meta}}$.',
+    related: ['financial-ml', 'triple-barrier', 'overfitting', 'purged-cv'],
+  },
+  {
+    id: 'data-snooping',
+    name: 'Data Snooping',
+    aliases: ['p-hacking', 'overfitting to history', 'data mining bias'],
+    category: 'Multiple Testing',
+    beginner:
+      'Running many strategy variations until one looks great — the winner is mostly luck, not skill.',
+    professional:
+      'Data snooping occurs whenever the same data is used to both generate and confirm a hypothesis. In strategy research: iterating parameters, switching entry signals, or adding filters until backtest metrics satisfy a threshold. Controls: pre-registration, hold-out test sets, Reality Check / SPA for max-statistic inference, Deflated Sharpe Ratio to account for the number of trials. The more trials M, the lower the bar for chance success.',
+    math: '$P(\\max_{m \\leq M} \\widehat{SR}_m > c) \\to 1$ as $M \\to \\infty$ even if all $\\mu_m = 0$. DSR adjusts $c$ for $M$.',
+    related: ['dsr', 'selection-bias', 'fwer-fdr', 'reality-check', 'pbo', 'overfitting'],
+  },
+  {
+    id: 'min-btl',
+    name: 'Minimum Backtest Length (MinBTL)',
+    aliases: ['MinBTL'],
+    category: 'Statistical Inference',
+    beginner:
+      'Given how many strategies you tried, the minimum history needed before a result is statistically credible.',
+    professional:
+      'Bailey & López de Prado (2014): given M trials and target annualized SR, MinBTL is the sample length T at which the expected maximum SR from M i.i.d. Gaussian trials equals the observed SR. If your backtest is shorter than MinBTL, the result is not distinguishable from luck at the given trial count. Companion to DSR: DSR shrinks the observed SR; MinBTL asks how long the test needs to be.',
+    math: '$\\mathrm{MinBTL} = \\left[\\left(\\frac{Z^{-1}(1-(1-\\alpha)^{1/M})}{\\widehat{SR}/\\sqrt{T}}\\right)^2 + 1\\right]$; grows as $\\log M$.',
+    related: ['dsr', 'pbo', 'selection-bias', 'data-snooping', 'effective-sample-size'],
   },
 ];
 
