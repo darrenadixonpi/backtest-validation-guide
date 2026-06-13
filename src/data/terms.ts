@@ -195,7 +195,7 @@ export const TERMS: Term[] = [
     professional:
       'Monotonically growing training set — uses all available history at each step. Lower variance late in sample but may dilute recent regime signals with obsolete data. Common when sample size is limited or when you believe the DGP is approximately stable over decades.',
     math: '$T_k = \\{1,…,b_k\\}$; $V_k = \\{b_k+1,…,b_{k+1}\\}$.',
-    related: ['walk-forward', 'rolling-wfa'],
+    related: ['walk-forward', 'rolling-wfa', 'purged-cv', 'holdout'],
   },
   {
     id: 'purged-cv',
@@ -215,7 +215,7 @@ export const TERMS: Term[] = [
     professional:
       'Additional buffer of E bars excluded from training after (and sometimes before) each test fold to attenuate serial correlation leakage when labels do not overlap but features or returns are autocorrelated. Typical E is a small multiple of the feature lookback or label horizon. Cheap insurance against subtle contamination.',
     math: 'Exclude training $t$ where $a_k − E < t ≤ b_k + E$ around test fold $V_k = [a_k, b_k]$.',
-    related: ['purged-cv', 'autocorrelation'],
+    related: ['purged-cv', 'autocorrelation', 'horizon-h', 'label-leakage'],
   },
   {
     id: 'cpcv',
@@ -245,7 +245,7 @@ export const TERMS: Term[] = [
     professional:
       'A terminal time slice reserved until all modeling decisions are frozen — touched once for confirmation. Unbiased toward that slice if discipline holds, but high variance because it is a single regime draw. Best used as a capstone after development-set nested CV/WFA, not as the only OOS check.',
     math: 'Holdout $H \\subset$ timeline. $\\hat{θ}$ fit on data strictly before $\\min(H)$.',
-    related: ['oos', 'nested-cv'],
+    related: ['oos', 'nested-cv', 'walk-forward', 'selection-bias'],
   },
   {
     id: 'block-bootstrap',
@@ -275,7 +275,7 @@ export const TERMS: Term[] = [
     professional:
       'Variant of MBB where blocks wrap modulo sample length — reduces edge effects when T is small and every observation should appear equally often as a block start. Useful for short histories common in niche assets or young strategies.',
     math: 'Block indices $(i,…,i+L−1)$ taken mod $T$.',
-    related: ['mbb', 'block-bootstrap'],
+    related: ['mbb', 'block-bootstrap', 'stationary-bootstrap'],
   },
   {
     id: 'stationary-bootstrap',
@@ -285,7 +285,7 @@ export const TERMS: Term[] = [
     professional:
       'Block lengths drawn randomly (often geometric) so the bootstrap series is strictly stationary (Politis & Romano, 1994) — addresses a technical limitation of fixed-length MBB. Preferred in some econometric tests of predictability when average block length is tuned to match dependence structure.',
     math: '$L_b \\sim \\mathrm{Geometric}(p)$; $E[L_b] = 1/p$; bootstrap series is stationary.',
-    related: ['mbb', 'block-bootstrap'],
+    related: ['mbb', 'block-bootstrap', 'cbb', 'dsr'],
   },
   {
     id: 'permutation-test',
@@ -295,7 +295,7 @@ export const TERMS: Term[] = [
     professional:
       'Randomization test that destroys the signal while preserving marginal distribution structure — e.g. sign flips of returns or circular shifts breaking feature-target alignment. Answers “is this Sharpe unusual under a null of no skill?” for a fixed strategy. Does not account for hyperparameter search unless embedded in the permutation loop.',
     math: '$p = (1 + \\sum_{b=1}^B 1\\{SR^{*b} ≥ SR_{\\mathrm{obs}}\\}) / (B+1)$.',
-    related: ['sharpe-ratio', 'selection-bias'],
+    related: ['sharpe-ratio', 'selection-bias', 'reality-check', 'fwer-fdr'],
   },
   {
     id: 'dsr',
@@ -335,7 +335,7 @@ export const TERMS: Term[] = [
     professional:
       'Hansen (2005) Superior Predictive Ability test — same max-statistic framework as Reality Check but with data-dependent recentering in the bootstrap, improving power when a subset of models is genuinely useless. Preferred in recent econometric practice for comparing forecasting/trading rules at equal frequency.',
     math: 'Recentered bootstrap of $\\max_m \\sqrt{T}(\\bar{d}_m - \\bar{d}_m^+)$; $H_0$: no model beats benchmark.',
-    related: ['reality-check', 'selection-bias'],
+    related: ['reality-check', 'selection-bias', 'dsr', 'fwer-fdr', 'data-snooping'],
   },
   {
     id: 'regime',
@@ -355,7 +355,7 @@ export const TERMS: Term[] = [
     professional:
       'Diagnostic that plots performance over a grid around the chosen hyperparameters. Sharp isolated peaks suggest fitting noise; broad plateaus suggest robust signal (or weak identification). Cheap to run and often more informative than a single IS optimum. Report alongside OOS, not instead of it.',
     math: '$\\Delta(ε) = SR(\\hat{θ}) − \\min_{||θ−\\hat{θ}||≤ε} SR(θ)$; $Stab_δ = |\\{θ : SR(θ) ≥ (1−δ)SR(\\hat{θ})\\}|/|\\Theta|$.',
-    related: ['overfitting', 'hyperparameters'],
+    related: ['overfitting', 'hyperparameters', 'walk-forward', 'stress-test'],
   },
   {
     id: 'stress-test',
@@ -365,7 +365,7 @@ export const TERMS: Term[] = [
     professional:
       'Scenario analysis on OOS or forward paths: multiply transaction costs, inject latency, drop random bars, or restrict evaluation to crisis subsamples (2008, COVID, etc.). Unlike a single estimand, stress testing is a family of counterfactual performance maps — pass/fail is judged against desk risk limits, not a closed-form test statistic. Standard in buy-side risk committees.',
     math: '$SR_{\\mathrm{stress}}(λ_c, C) = SR(\\{s_t\\})$ under $c_t ← λ_c c_t$ and $t \\in C$; map $(λ_c, C) \\mapsto$ metrics.',
-    related: ['regime', 'transaction-costs'],
+    related: ['regime', 'transaction-costs', 'parameter-stability', 'max-drawdown'],
   },
   {
     id: 'transaction-costs',
@@ -405,7 +405,7 @@ export const TERMS: Term[] = [
     professional:
       'Portfolio weight or signal derived from the model at each bar. Must be implementable: if you trade at the close using features known at close, P&L attribution must use next-bar returns. Leverage, gross exposure caps, and position limits belong in the simulator, not as afterthoughts.',
     math: '$w_t = g(f_θ(X_t))$; P&L at $t$ uses $w_{t−1}$ against $r_t$.',
-    related: ['returns', 'hyperparameters'],
+    related: ['returns', 'hyperparameters', 'turnover', 'transaction-costs'],
   },
   {
     id: 'volatility',
@@ -415,7 +415,7 @@ export const TERMS: Term[] = [
     professional:
       'Standard deviation of returns — enters Sharpe denominator and position sizing. Volatility clusters in financial series (GARCH effects), violating i.i.d. assumptions. Risk targeting and vol-scaling change the effective strategy; document whether vol is estimated in-sample or with rolling OOS windows.',
     math: '$σ = \\sqrt{Var(s_t)}$; often $σ_t$ varies (stochastic volatility).',
-    related: ['sharpe-ratio', 'regime'],
+    related: ['sharpe-ratio', 'regime', 'block-bootstrap', 'max-drawdown'],
   },
   {
     id: 'lookahead-bias',
@@ -435,7 +435,7 @@ export const TERMS: Term[] = [
     professional:
       'Property that time averages converge to population expectations — underpinning the hope that long backtests estimate future performance. Broken by structural breaks, regime shifts, and evolving market structure. Rolling validation and regime diagnostics test ergodicity empirically; never assume it from a single long IS run.',
     math: '$(1/T)\\sum_{t=1}^T s_t \\to E[s_t]$ a.s. as $T \\to \\infty$ under ergodic conditions.',
-    related: ['stationarity', 'regime'],
+    related: ['stationarity', 'regime', 'mixing-conditions', 'walk-forward'],
   },
   {
     id: 'simpson-paradox',
@@ -445,7 +445,7 @@ export const TERMS: Term[] = [
     professional:
       'Aggregate performance metric reverses sign when conditioning on subgroups — e.g. positive overall Sharpe with negative Sharpe in every volatility quintile due to composition effects. Motivates mandatory regime-stratified OOS tables, not optional extras.',
     math: '$\\mathrm{Sign}(\\sum_j w_j μ_j) \\neq \\mathrm{sign}(μ_j)$ for some regimes $j$ with $\\sum w_j = 1$.',
-    related: ['regime', 'sharpe-ratio'],
+    related: ['regime', 'sharpe-ratio', 'factor-model', 'panel-clustering'],
   },
   {
     id: 'rule-based-strategy',
