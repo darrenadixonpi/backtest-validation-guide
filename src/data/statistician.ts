@@ -316,7 +316,7 @@ export const CV_BIAS = {
     '\\mathbb{E}[\\widehat{Err}_{CV}] \\approx Err + \\text{optimism bias}',
     '\\text{Nested CV reduces tuning contamination; purging removes leakage bias}',
   ],
-  note: 'Even correct CV estimates expected error, not with zero variance — report fold distribution ($CPCV$).',
+  note: 'Even correct CV estimates expected error, not with zero variance — report fold distribution (CPCV).',
 };
 
 export const REFERENCES_EXTENDED = [

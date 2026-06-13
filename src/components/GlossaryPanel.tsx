@@ -12,6 +12,8 @@ type Props = {
   onSearch: (v: string) => void;
   selectedTermId: string;
   onSelectTerm: (id: string) => void;
+  level: Level;
+  onLevel: (v: Level) => void;
 };
 
 function displayLevel(term: Term, level: Level): Level {
@@ -29,8 +31,7 @@ function categoryForTerm(id: string) {
   return termById(id)?.category ?? TERMS[0].category;
 }
 
-export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }: Props) {
-  const [level, setLevel] = useState<Level>('beginner');
+export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm, level, onLevel }: Props) {
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set([categoryForTerm(selectedTermId)]),
   );
@@ -84,7 +85,7 @@ export function GlossaryPanel({ search, onSearch, selectedTermId, onSelectTerm }
               key={l}
               type="button"
               className={level === l ? 'level active' : 'level'}
-              onClick={() => setLevel(l)}
+              onClick={() => onLevel(l)}
             >
               {l}
             </button>

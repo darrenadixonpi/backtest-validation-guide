@@ -60,7 +60,7 @@ export function ValidationCharts() {
 
       <div className="chart-grid">
         <figure>
-          <figcaption>Method trust profile (OOS fidelity index, 0–1)</figcaption>
+          <figcaption>Method trust profile (OOS fidelity 0–1; IS bias factor, relative)</figcaption>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={BIAS_CHART}>
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} />
@@ -75,7 +75,7 @@ export function ValidationCharts() {
         </figure>
 
         <figure>
-          <figcaption>Cumulative return — IS vs OOS segments (walk-forward demo)</figcaption>
+          <figcaption>Per-block return — IS vs OOS segments (walk-forward demo)</figcaption>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={WFA_DEMO}>
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} />

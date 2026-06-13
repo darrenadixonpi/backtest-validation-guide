@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { GlossaryPanel } from './components/GlossaryPanel';
 import { MathFramework } from './components/MathFramework';
 import { MethodComparisonTable, MethodExplorer } from './components/MethodExplorer';
@@ -12,25 +12,54 @@ import { ValidationCharts } from './components/ValidationCharts';
 import { PIPELINE_ROWS } from './data/methods';
 import { TERMS } from './data/terms';
 import type { StrategyMode, WindowMode } from './components/ProtocolRecommender';
+import type { Level } from './data/types';
+import { parseHash, pushHash, type Section } from './utils/hash';
 import './App.css';
 
-type Section = 'overview' | 'playbook' | 'protocol' | 'methods' | 'glossary' | 'math' | 'statistics' | 'tools';
-
 export default function App() {
-  const [section, setSection] = useState<Section>('overview');
+  const initial = parseHash(window.location.hash);
+  const [section, setSection] = useState<Section>(initial.section);
   const [search, setSearch] = useState('');
-  const [selectedTerm, setSelectedTerm] = useState('backtesting');
-  const [selectedMethod, setSelectedMethod] = useState('wfa');
+  const [selectedTerm, setSelectedTerm] = useState(
+    initial.section === 'glossary' && initial.detail ? initial.detail : 'backtesting',
+  );
+  const [selectedMethod, setSelectedMethod] = useState(
+    initial.section === 'methods' && initial.detail ? initial.detail : 'wfa',
+  );
   const [strategyMode, setStrategyMode] = useState<StrategyMode>('indicator');
   const [windowMode, setWindowMode] = useState<WindowMode>('expanding');
   const [trials, setTrials] = useState<'few' | 'many'>('few');
   const [horizon, setHorizon] = useState<'zero' | 'positive'>('zero');
   const [refit, setRefit] = useState(true);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [glossaryLevel, setGlossaryLevel] = useState<Level>('beginner');
 
-  const jumpToTerm = (id: string) => {
+  // Keep URL hash in sync with navigation state
+  useEffect(() => {
+    const detail = section === 'glossary' ? selectedTerm : section === 'methods' ? selectedMethod : null;
+    pushHash(section, detail);
+  }, [section, selectedTerm, selectedMethod]);
+
+  // Back/forward button support
+  useEffect(() => {
+    const onPop = () => {
+      const { section: s, detail } = parseHash(window.location.hash);
+      setSection(s);
+      if (s === 'glossary' && detail) setSelectedTerm(detail);
+      if (s === 'methods' && detail) setSelectedMethod(detail);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  const jumpToTerm = useCallback((id: string) => {
     setSelectedTerm(id);
     setSection('glossary');
-  };
+  }, []);
+
+  const navigate = useCallback((s: Section) => {
+    setSection(s);
+  }, []);
 
   const protocolProps = {
     strategyMode,
@@ -87,7 +116,7 @@ export default function App() {
               key={id}
               type="button"
               className={section === id ? 'tab active' : 'tab'}
-              onClick={() => setSection(id)}
+              onClick={() => navigate(id)}
             >
               {label}
             </button>
@@ -166,12 +195,20 @@ export default function App() {
             onSearch={setSearch}
             selectedTermId={selectedTerm}
             onSelectTerm={jumpToTerm}
+            level={glossaryLevel}
+            onLevel={setGlossaryLevel}
           />
         )}
 
         {section === 'math' && <MathFramework />}
 
-        {section === 'statistics' && <StatisticianAppendix onSelectTerm={jumpToTerm} />}
+        {section === 'statistics' && (
+          <StatisticianAppendix
+            onSelectTerm={jumpToTerm}
+            checked={checked}
+            onChecked={setChecked}
+          />
+        )}
 
         {section === 'tools' && <ToolsGuide />}
       </main>

@@ -124,10 +124,10 @@ export const BIAS_CHART = [
 ];
 
 export const WFA_DEMO = [
-  { block: '1', isPath: 0.02, oosPath: 0 },
-  { block: '2', isPath: 0.04, oosPath: 0 },
-  { block: '3', isPath: 0.01, oosPath: 0 },
-  { block: '4', isPath: -0.01, oosPath: 0 },
+  { block: '1', isPath: 0.02, oosPath: null },
+  { block: '2', isPath: 0.04, oosPath: null },
+  { block: '3', isPath: 0.01, oosPath: null },
+  { block: '4', isPath: -0.01, oosPath: null },
   { block: '5', isPath: 0.03, oosPath: 0.015 },
   { block: '6', isPath: 0.02, oosPath: 0.012 },
   { block: '7', isPath: 0.05, oosPath: 0.008 },
@@ -146,5 +146,5 @@ export const PIPELINE_ROWS = [
   ['Regime split', 'Conditional failure detection'],
   ['Parameter stability', 'Sharp-peak overfit diagnostic'],
   ['Final holdout', 'One-shot confirmation'],
-  ['Forward test', 'Microstructure & execution realism'],
+  ['Forward test', 'Microstructure & execution reality check'],
 ];

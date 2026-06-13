@@ -11,13 +11,14 @@ import { termById } from '../data/terms';
 
 type Props = {
   onSelectTerm: (id: string) => void;
+  checked: Record<string, boolean>;
+  onChecked: (v: Record<string, boolean>) => void;
 };
 
 type SubSection = 'hypotheses' | 'assumptions' | 'limits' | 'panel';
 
-export function StatisticianAppendix({ onSelectTerm }: Props) {
+export function StatisticianAppendix({ onSelectTerm, checked, onChecked }: Props) {
   const [sub, setSub] = useState<SubSection>('hypotheses');
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   const assumptionGroups = useMemo(() => {
     const groups = new Map<string, typeof ASSUMPTIONS>();
@@ -113,7 +114,7 @@ export function StatisticianAppendix({ onSelectTerm }: Props) {
                       <input
                         type="checkbox"
                         checked={!!checked[a.id]}
-                        onChange={(e) => setChecked((prev) => ({ ...prev, [a.id]: e.target.checked }))}
+                        onChange={(e) => onChecked({ ...checked, [a.id]: e.target.checked })}
                       />
                       <span className="assumption-text">
                         <strong>

@@ -224,7 +224,7 @@ export const TERMS: Term[] = [
     beginner: 'Many clean train/test combos; see a distribution of scores, not one lucky path.',
     professional:
       'Generates many purged train/test combinations from chronological partitions — yielding a distribution of OOS outcomes rather than a single walk-forward path. Enables probability of backtest overfitting (PBO) and quantifies sensitivity to split choice. Computationally heavier but essential when comparing many parameter sets.',
-    math: '$\\{SR^{\\text{OOS}}(s)\\}_{s \\in S}$. Rank IS vs OOS across splits $s \\in S$.',
+    math: '$\\{SR^{\\mathrm{OOS}}(s)\\}_{s \\in S}$. Rank IS vs OOS across splits $s \\in S$.',
     related: ['purged-cv', 'pbo', 'walk-forward'],
   },
   {
@@ -314,7 +314,7 @@ export const TERMS: Term[] = [
     beginner: 'How often your best in-sample settings are mediocre out-of-sample.',
     professional:
       'Bailey et al. metric from CPCV: fraction of splits where the in-sample optimal configuration ranks below median out-of-sample among all candidates. PBO near 0.5 suggests IS winner is no better than random selection; low PBO supports (but does not prove) robustness. Requires enumerating candidate parameter sets honestly.',
-    math: '$PBO = \\frac{1}{|S|} \\sum_{s \\in S} 1\\{\\operatorname{rank}_{\\text{OOS}}(\\text{IS-best } θ) > \\lfloor |\\Theta|/2 \\rfloor\\}$.',
+    math: '$PBO = \\frac{1}{|S|} \\sum_{s \\in S} 1\\{\\operatorname{rank}_{\\mathrm{OOS}}(\\text{IS-best } θ) > \\lfloor |\\Theta|/2 \\rfloor\\}$.',
     related: ['cpcv', 'overfitting', 'dsr'],
   },
   {
@@ -580,7 +580,7 @@ export const TERMS: Term[] = [
       'When testing many strategies, you can control how often any false alarm slips through (FWER) or the fraction of false discoveries (FDR).',
     professional:
       "Reality Check and SPA target family-wise error rate (FWER) for max-statistic tests. Benjamini–Hochberg FDR is looser but useful for screening many signals. Document which error rate your pipeline targets when running strategy tournaments.",
-    math: '$FWER = P(V \\geq 1)$; $FDR = E[V/R \\mid R>0]$ under multiple hypotheses.',
+    math: '$FWER = P(V \\geq 1)$; $FDR = E[V/R \\cdot \\mathbf{1}\\{R>0\\}]$ (BH); $pFDR = E[V/R \\mid R>0]$ (Storey).',
     related: ['reality-check', 'spa', 'selection-bias'],
   },
   {
