@@ -1415,3 +1415,73 @@ footer p {
   white-space: nowrap;
 }
 .print-checklist-btn:hover { border-color: #4a7cbf; color: #e8eaed; background: #1a1f28; }
+
+/* ── Feedback form (Phase 2) ───────────────────────── */
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+}
+.feedback-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: #111720;
+  border: 1px solid #3a4150;
+  border-radius: 6px;
+  color: #e8eaed;
+  font-size: 0.88rem;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+.feedback-textarea:focus { border-color: #4a7cbf; }
+.feedback-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.feedback-submit {
+  padding: 5px 14px;
+  border-radius: 5px;
+  border: none;
+  background: #2a5cbf;
+  color: #fff;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.feedback-submit:disabled { opacity: 0.5; cursor: default; }
+.feedback-submit:not(:disabled):hover { background: #3a6cd0; }
+.feedback-cancel {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #3a4150;
+  background: transparent;
+  color: #aeb4bf;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.feedback-cancel:hover { color: #e8eaed; }
+.feedback-github {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #5a6270;
+}
+.feedback-github:hover { color: #aeb4bf; }
+.feedback-error { font-size: 0.85rem; color: #c05050; }
+.feedback-done {
+  font-size: 0.88rem;
+  color: #aeb4bf;
+}
+.feedback-done a { color: #4a9fbf; }
+.feedback-reset {
+  background: none;
+  border: none;
+  color: #5a6270;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+}
+.feedback-reset:hover { color: #aeb4bf; }
