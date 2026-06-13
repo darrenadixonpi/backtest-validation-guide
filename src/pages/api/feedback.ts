@@ -1,37 +1,29 @@
 /**
- * Vercel Serverless Function — POST /api/feedback  (Node.js runtime)
+ * Astro API route — POST /api/feedback  (server-rendered → Vercel serverless function)
  *
- * Runs on the Node.js runtime (NOT Edge): it holds a TCP connection to Redis via
- * node-redis, and the Edge runtime can't open raw sockets. No `config.runtime`
- * export is needed — /api functions default to Node.
- *
- * Body: { title, body, hp, elapsedMs, turnstileToken }
- * Creates a GitHub issue on backtest-validation-guide with label "suggestion".
+ * IMPORTANT: this lives under src/pages/api so the @astrojs/vercel adapter actually
+ * deploys it. A root-level /api/*.ts file is NOT deployed when an Astro adapter owns
+ * the build output (the rest of the site is static) — that's why the previous
+ * version returned 404 in production. `prerender = false` makes just this one route
+ * server-rendered; everything else stays static.
  *
  * Spam defenses (cheapest first):
  *   1. Honeypot   — hidden `hp` field; if filled, silently pretend success.
  *   2. Time-trap  — reject submissions faster than MIN_FILL_MS.
  *   3. Rate limit — RATE_LIMIT per IP per window (Redis; in-memory fallback).
  *   4. Turnstile  — Cloudflare bot check, verified server-side.
- * CORS only constrains browsers, so all of these run server-side: a bot POSTing
- * directly with curl still has to clear them.
  *
  * Env vars:
  *   GITHUB_TOKEN          — fine-grained PAT, Issues R/W on this repo only (required).
  *   TURNSTILE_SECRET_KEY  — Cloudflare Turnstile secret. If unset, the check is skipped.
- *   REDIS_URL             — Redis connection string (redis:// or rediss://). If unset,
- *                           falls back to a best-effort per-instance in-memory limiter.
- *
- * Returns:
- *   200 { url, number } — issue created
- *   200 { ok: true }    — honeypot tripped (silent no-op)
- *   400 { error }       — bad request / submitted too quickly
- *   403 { error }       — failed bot verification
- *   429 { error }       — rate limited
- *   503 { error }       — GITHUB_TOKEN not set (client falls back to GitHub URL)
+ *   REDIS_URL             — Redis connection string. If unset, falls back to a
+ *                           best-effort per-instance in-memory limiter.
  */
 
+import type { APIRoute } from 'astro';
 import { createClient } from 'redis';
+
+export const prerender = false;
 
 const REPO = 'darrenadixonpi/backtest-validation-guide';
 const RATE_LIMIT = 10; // max requests per IP per window
@@ -39,14 +31,12 @@ const WINDOW_S = 60; // rate-limit window (seconds)
 const WINDOW_MS = WINDOW_S * 1000;
 const MIN_FILL_MS = 2000; // reject anything submitted faster than this
 
-const ALLOW_ORIGIN = 'https://backtest-validation-guide.vercel.app';
 const REDIS_URL = process.env.REDIS_URL;
 const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY;
 
 // --- Rate limiting -----------------------------------------------------------
 
-// Reuse one Redis client across warm invocations: created lazily at module scope
-// so a hot function reuses the open connection instead of dialing on every request.
+// Reuse one Redis client across warm invocations (module scope, lazy connect).
 type RedisClient = ReturnType<typeof createClient>;
 let clientPromise: Promise<RedisClient> | null = null;
 
@@ -63,7 +53,6 @@ function getRedis(): Promise<RedisClient> | null {
   return clientPromise;
 }
 
-// Shared, cross-instance limiter via Redis (fixed window).
 async function redisRateLimited(ip: string): Promise<boolean> {
   const redis = await getRedis()!;
   const key = `rl:feedback:${ip}`;
@@ -126,41 +115,25 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': ALLOW_ORIGIN,
-    },
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
 // --- Handler -----------------------------------------------------------------
 
-export default async function handler(req: Request): Promise<Response> {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': ALLOW_ORIGIN,
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    });
-  }
-
-  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
-
+export const POST: APIRoute = async ({ request }) => {
   const token = process.env.GITHUB_TOKEN;
   if (!token) return json({ error: 'Not configured' }, 503);
 
   // Parse body.
   let payload: Record<string, unknown>;
   try {
-    payload = (await req.json()) as Record<string, unknown>;
+    payload = (await request.json()) as Record<string, unknown>;
   } catch {
     return json({ error: 'Invalid request body' }, 400);
   }
 
   // 1. Honeypot — if the hidden field has anything in it, it's a bot.
-  //    Return a success-shaped response so the bot learns nothing.
   const hp = typeof payload.hp === 'string' ? payload.hp : '';
   if (hp.trim() !== '') return json({ ok: true });
 
@@ -176,7 +149,7 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ error: 'Submitted too quickly — please try again' }, 400);
   }
 
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
 
   // 3. Rate limit.
   if (await rateLimited(ip)) {
@@ -209,4 +182,4 @@ export default async function handler(req: Request): Promise<Response> {
 
   const issue = (await resp.json()) as { html_url: string; number: number };
   return json({ url: issue.html_url, number: issue.number });
-}
+};
