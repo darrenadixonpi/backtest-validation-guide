@@ -1485,3 +1485,57 @@ footer p {
   padding: 0;
 }
 .feedback-reset:hover { color: #aeb4bf; }
+
+/* ── Nav anchor reset (Astro uses <a> for tabs) ───── */
+a.tab {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Mobile layout ─────────────────────────────────── */
+@media (max-width: 600px) {
+  .app {
+    padding: 16px 12px 40px;
+  }
+
+  .hero h1 {
+    font-size: 1.45rem;
+  }
+
+  /* Tabs scroll horizontally instead of wrapping — saves ~3 rows of height */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Stretch to full toolbar width so search+feedback sit below */
+    width: 100%;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+
+  /* Tool filter selects: let them shrink on narrow screens */
+  .tool-filters select {
+    min-width: 0;
+    width: 100%;
+  }
+  .tool-filters label {
+    width: 100%;
+  }
+}
+
+/* ── Glossary mobile: show detail ABOVE the list ──── */
+/* When a term is tapped, the updated detail is visible at the top
+   without the user having to scroll past the full term list. */
+@media (max-width: 900px) {
+  .term-detail {
+    order: -1;
+  }
+}
