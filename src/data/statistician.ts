@@ -64,11 +64,10 @@ export const SHARPE_INFERENCE = {
   dsr: {
     title: 'Deflated Sharpe Ratio (Bailey & Lopez de Prado) — full form',
     latex: [
-      'SR_0 = \\mathbb{E}\\left[\\max_{m\\le M}\\widehat{SR}_m \\mid H_0\\right] \\approx \\sqrt{V(\\widehat{SR})}\\left((1-\\gamma)\\Phi^{-1}(1-1/M)+\\gamma\\,\\Phi^{-1}(1-1/M e^{-1})\\right)',
-      'V(\\widehat{SR}) = \\frac{1}{T-1}\\left(1 - \\gamma_3\\widehat{SR} + \\frac{\\gamma_4-1}{4}\\widehat{SR}^2\\right)',
-      'DSR = \\Phi\\left(\\frac{\\widehat{SR}-SR_0}{\\sqrt{V(\\widehat{SR})}}\\cdot\\sqrt{T-1}\\right)',
+      'SR_0 = \\mathbb{E}\\left[\\max_{m\\le M}\\widehat{SR}_m \\mid H_0\\right] \\approx \\sqrt{V[\\{\\widehat{SR}_m\\}]}\\left((1-\\gamma)\\Phi^{-1}(1-1/M)+\\gamma\\,\\Phi^{-1}(1-1/(Me))\\right)',
+      'DSR = \\Phi\\left(\\frac{(\\widehat{SR}-SR_0)\\sqrt{T-1}}{\\sqrt{1 - \\gamma_3\\widehat{SR} + \\frac{\\gamma_4-1}{4}\\widehat{SR}^2}}\\right)',
     ],
-    note: '$γ$ = Euler–Mascheroni constant. Document $M$ (number of trials) honestly — includes informal tweaks.',
+    note: '$γ$ = Euler–Mascheroni constant; $V[\\{\\widehat{SR}_m\\}]$ = variance of Sharpe estimates across the $M$ trials (cross-trial, not the single-strategy estimator variance). Document $M$ honestly — includes informal tweaks.',
   },
 };
 
@@ -324,7 +323,7 @@ export const REFERENCES_EXTENDED = [
   'Lopez de Prado — Advances in Financial Machine Learning (purged CV, CPCV, embargo)',
   'Bailey & Lopez de Prado — Deflated Sharpe Ratio; Bailey et al. — PBO',
   'White (2000) — Reality Check; Hansen (2005) — SPA',
-  'Politis & Romano (1994) — stationary bootstrap; Politis & White — block length selection',
+  'Künsch (1989) — moving block bootstrap; Politis & Romano (1994) — stationary bootstrap; Politis & White — block length selection',
   'Lo (2002) — autocorrelation and Sharpe ratio inference',
   'Jobson & Korkie; Mertens — Sharpe ratio variance under non-normality',
   'Fama & MacBeth (1973); Newey & West — panel HAC inference',

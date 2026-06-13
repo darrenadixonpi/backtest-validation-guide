@@ -263,7 +263,7 @@ export const TERMS: Term[] = [
     category: 'Bootstrap & Uncertainty',
     beginner: 'Equal-length strips randomly stitched into fake histories.',
     professional:
-      'Fixed block length L; standard choice for dependent time series (Politis & Romano, 1994). Block length trades bias (too short → destroys dependence) vs variance (too long → few blocks). Rule of thumb: L on order of the autocorrelation decay of the statistic you care about.',
+      'Fixed block length L; standard choice for dependent time series (Künsch, 1989). Block length trades bias (too short → destroys dependence) vs variance (too long → few blocks). Rule of thumb: L on order of the autocorrelation decay of the statistic you care about.',
     math: 'Valid if $L → ∞$ and $L/T → 0$ as $T → ∞$.',
     related: ['block-bootstrap', 'cbb', 'stationary-bootstrap'],
   },
@@ -283,7 +283,7 @@ export const TERMS: Term[] = [
     category: 'Bootstrap & Uncertainty',
     beginner: 'Random-length chunks with controlled average size.',
     professional:
-      'Block lengths drawn randomly (often geometric) so the bootstrap series is strictly stationary — addresses a technical limitation of fixed-length MBB. Preferred in some econometric tests of predictability when average block length is tuned to match dependence structure.',
+      'Block lengths drawn randomly (often geometric) so the bootstrap series is strictly stationary (Politis & Romano, 1994) — addresses a technical limitation of fixed-length MBB. Preferred in some econometric tests of predictability when average block length is tuned to match dependence structure.',
     math: '$L_b \\sim \\mathrm{Geometric}(p)$; $E[L_b] = 1/p$; bootstrap series is stationary.',
     related: ['mbb', 'block-bootstrap'],
   },
